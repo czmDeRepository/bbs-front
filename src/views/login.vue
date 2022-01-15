@@ -1,0 +1,207 @@
+<template>
+  <div id="login" >
+    <el-row>
+    <!-- justify 对齐方式 -->
+          <el-col>
+                <!-- form表单 -->
+                    <el-tabs :stretch="true" tab-position="bottom">
+                        <el-tab-pane label="登陆">
+                            <el-form label-position="left" :rules="loginRules" :model="loginForm" ref="loginForm" label-width="100px" class="demo-ruleForm">
+                            <h1 style="text-align: center;">欢迎登陆</h1>
+                            <el-divider></el-divider>
+                            <el-form-item
+                                label="账号"
+                                prop="account"
+                                :rules="[
+                                { required: true, message: '账号不能为空'},
+                                ]">
+                                <el-input prefix-icon="el-icon-user-solid" placeholder="请输入账号" type="text" v-model="loginForm.account"></el-input>
+                            </el-form-item>
+                            <el-form-item
+                                label="密码"
+                                prop="password">
+                                <el-input prefix-icon="el-icon-lock" placeholder="请输入密码" v-model="loginForm.password" show-password></el-input>
+                            </el-form-item>
+                                <el-button type="primary" @click="submitForm('loginForm')" :loading="loading">登陆</el-button>
+                                <el-button @click="resetForm('loginForm')">清空</el-button>
+                            </el-form>
+                        </el-tab-pane>
+                        <el-tab-pane label="注册">
+                            <el-form label-position="left" :rules="registerRules" :model="registerForm" ref="registerForm" label-width="100px" class="demo-ruleForm">
+                            <h1 style="text-align: center;">注册</h1>
+                            <el-divider></el-divider>
+                            <el-form-item
+                                label="用户名"
+                                prop="name">
+                                <el-input prefix-icon="el-icon-user" placeholder="请输入用户名" type="text" v-model="registerForm.name"></el-input>
+                            </el-form-item>
+                            <el-form-item
+                                label="账号"
+                                prop="account">
+                                <el-input prefix-icon="el-icon-user-solid" placeholder="请输入账号" type="text" v-model="registerForm.account"></el-input>
+                            </el-form-item>
+                            <el-form-item
+                                label="邮箱"
+                                prop="mail">
+                                <el-input prefix-icon="el-icon-message" placeholder="请输入邮箱" type="text" v-model="registerForm.mail"></el-input>
+                            </el-form-item>
+                            <el-form-item
+                                label="密码"
+                                prop="password"
+                                >
+                                <el-input prefix-icon="el-icon-lock" placeholder="请输入密码" v-model="registerForm.password" show-password></el-input>
+                            </el-form-item>
+                                <el-button type="primary" @click="submitForm('registerForm')" :loading="loading">注册</el-button>
+                                <el-button @click="resetForm('registerForm')">清空</el-button>
+                            </el-form>
+                        </el-tab-pane>
+                    </el-tabs>
+          </el-col>
+    </el-row>
+
+
+  </div>
+
+</template>
+
+<script>
+import store from '@/services/store.js'
+import { Base64 } from 'js-base64';
+    export default {
+        data() 
+        {
+            var checkEmail = (rule, value, callback) => {
+                // const mailReg = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(.[a-zA-Z0-9_-])+/
+                const mailReg = /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/
+                if (!value) {
+                    return callback(new Error('邮箱不能为空'))
+                }
+                if (mailReg.test(value)) {
+                    callback()
+                } else {
+                    callback(new Error('请输入正确的邮箱格式'))
+                }
+            }
+            
+            var checkAccount = (rule, value, callback) => {
+                if (!value) {
+                    return callback(new Error('账号不能为空'))
+                }
+                if (this.isExist) {
+                    this.isExist = false
+                    return callback(new Error('账号已存在'))
+                } else {
+                    callback()
+                }
+            }
+            return {
+                isExist: false,
+                loginRules: {
+                    name: { required: true, message: '用户名不能为空'},
+                    password: {required: true, message: '密码不能为空'},
+                },
+                registerRules: {
+                    account: { required: true, validator: checkAccount},
+                    name: { required: true, message: '用户名不为空'},
+                    password: {required: true, message: '密码不能为空'},
+                    mail: { required: true, validator: checkEmail},
+                },
+                loginForm: {
+                    account: '',
+                    password: '',
+                },
+                registerForm: {
+                    name: '',
+                    account: '',
+                    password: '',
+                    mail: '',
+                },
+                loading: false,
+
+            };
+        },
+        methods: {
+            submitForm(formName) 
+            {
+                this.$refs[formName].validate((valid) => 
+                    {
+                        if (valid) 
+                        {
+                            if(formName === 'registerForm') {
+                                this.$axios.post('/user',{
+                                    name: this.registerForm.name,
+                                    account: this.registerForm.account,
+                                    password: this.registerForm.password,
+                                    email: this.registerForm.mail,
+                                }).then((e)=>{
+                                    if(e.data.success) {
+                                        let splits = e.data.Data.split('.')
+                                        let payload = JSON.parse(Base64.decode(splits[1]))
+                                        console.log(payload)
+                                        store.setToken(e.data.Data)
+                                        store.setUserId(payload.id)
+                                        store.setUserRole(payload.role)
+                                        store.setUserHeader(payload.imageUrl)
+                                        store.set('name', payload.name)
+                                        store.set('gender', payload.gender)
+                                        this.$notify({
+                                            title: '成功',
+                                            message: '注册成功',
+                                            type: 'success'
+                                        });
+                                        this.$emit("success")
+                                    } else if (e.data.code == 3000) {
+                                        this.$notify.error({
+                                            title: '错误',
+                                            message: '账号已存在'
+                                        });
+                                        this.isExist = true
+                                        this.$refs['registerForm'].validate((v)=>false);
+                                    } else {
+                                        this.$message.error(`注册失败: message ${e.data.message} ,data:${e.data.Data}`)
+                                    }
+                                })
+                            } else {
+                                this.$axios.get('/user/login', {
+                                    params: {
+                                        account: this.loginForm.account,
+                                        password: this.loginForm.password,
+                                    }
+                                }).then((e)=>{
+                                    if(e.data.success) {
+                                        let splits = e.data.Data.split('.')
+                                        let payload = JSON.parse(Base64.decode(splits[1]))
+                                        console.log(payload)
+                                        store.setToken(e.data.Data)
+                                        store.setUserId(payload.id)
+                                        store.setUserRole(payload.role)
+                                        store.setUserHeader(payload.imageUrl)
+                                        store.set('name', payload.name)
+                                        store.set('gender', payload.gender)
+                                        this.$notify({
+                                            title: '成功',
+                                            message: '登陆成功',
+                                            type: 'success'
+                                        });
+                                        this.$emit("success")
+                                    } else {
+                                        this.$message.error(`登陆失败: ${e.data.message}`)
+                                    }
+                                })
+                            }
+                        }
+                    }
+                );
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+        },
+    }
+</script>
+
+<style>
+h1 {
+    line-height: 0%;
+}
+</style>
