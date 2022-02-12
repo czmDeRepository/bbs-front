@@ -128,6 +128,15 @@ export default {
             required: false,
         }
     },
+    watch: {
+        // 监听 id变化
+        id: {
+            deep: true,  // 深度监听
+            handler(newVal,oldVal) {
+                this.initDate()
+            }
+        }
+    },
     data() {
         return {
             article: {
@@ -379,32 +388,35 @@ export default {
                 this.$message.error(`评论列表获取失败${e.message}`)
             })
            
-        }
+        },
+        initDate() {
+            let that = this
+            this.$axios.get(`/article/${this.id}`,{
+                params: {
+                    userId: store.getUserId(),
+                }
+            }).then((e)=>{
+                that.article = e.data.Data
+                return that.article
+            }).then((article)=> {
+                that.$axios.get(`/category/${article.categoryId}`).then((e)=>{
+                    that.category = e.data.Data
+                })
+                that.$axios.get('/user', {params:{id:article.userId}}).then((e)=>{
+                    if(e.data.success && e.data.Data.data.length > 0) {
+                        that.owner = e.data.Data.data[0]
+                        that.owner.imageUrl = that.$axios.defaults.baseURL + that.owner.imageUrl
+                    }
+                })
+            })
+            
+            // 获取评论
+            this.getComment()
+        },
     },
      // 组件注入后调用
     async created() {
-        let that = this
-        this.$axios.get(`/article/${this.id}`,{
-            params: {
-                userId: store.getUserId(),
-            }
-        }).then((e)=>{
-            that.article = e.data.Data
-            return that.article
-        }).then((article)=> {
-            that.$axios.get(`/category/${article.categoryId}`).then((e)=>{
-                that.category = e.data.Data
-            })
-            that.$axios.get('/user', {params:{id:article.userId}}).then((e)=>{
-                if(e.data.success && e.data.Data.data.length > 0) {
-                    that.owner = e.data.Data.data[0]
-                    that.owner.imageUrl = that.$axios.defaults.baseURL + that.owner.imageUrl
-                }
-            })
-        })
-        
-        // 获取评论
-        this.getComment()
+        this.initDate()
     },
     
 }

@@ -51,7 +51,7 @@ axios.interceptors.response.use(function (response) {
         duration: 0,
         onClose: ()=>{
           store.clear()
-          vue.$router.go(0)
+          vue.$router.push("/")
         },
       })
   }

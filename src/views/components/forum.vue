@@ -98,7 +98,7 @@
         <div v-if="isAdmin || followingFlag" class="articleDetail">
             <el-dialog
                 :visible.sync="dialogVisible"
-                width="90%" :destroy-on-close="true" top="2vh">
+                width="90%" :destroy-on-close="false" top="2vh">
                 <ArticleDetail :id="articleId" :isDialog="true"></ArticleDetail>
             </el-dialog>
         </div>
