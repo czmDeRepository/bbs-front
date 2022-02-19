@@ -131,7 +131,7 @@ export default {
     watch: {
         // 监听 id变化
         id: {
-            deep: true,  // 深度监听
+            // deep: true,  // 深度监听，监听对象属性时需要
             handler(newVal,oldVal) {
                 this.initDate()
             }
