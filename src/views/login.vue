@@ -5,7 +5,7 @@
           <el-col>
                 <!-- form表单 -->
                     <el-tabs :stretch="true" tab-position="bottom">
-                        <el-tab-pane label="登陆">
+                        <el-tab-pane label="账号密码登录">
                             <el-form label-position="left" :rules="loginRules" :model="loginForm" ref="loginForm" label-width="100px" class="demo-ruleForm">
                             <h1 style="text-align: center;">欢迎登陆</h1>
                             <el-divider></el-divider>
@@ -72,6 +72,26 @@
                                 <el-button @click="resetForm('registerForm')">清空</el-button>
                             </el-form>
                         </el-tab-pane>
+                        <el-tab-pane label="验证码登录" >
+                            <h1 style="text-align: center;">欢迎登陆</h1>
+                            <el-divider></el-divider>
+                            <el-form label-position="left" label-width="100px" :model="captchaForm" :rules="captchaRules" ref="captchaForm" class="demo-ruleForm">
+                                <el-form-item
+                                    label="邮箱"
+                                    prop="mail">
+                                    <el-input prefix-icon="el-icon-message" placeholder="请输入邮箱" type="text" v-model="captchaForm.mail"></el-input>
+                                </el-form-item>
+                                <el-form-item label="验证码" prop="captcha">
+                                    <el-input prefix-icon="el-icon-lock" placeholder="请输入验证码" v-model="captchaForm.captcha">
+                                        <template slot="append">
+                                             <el-link :type="getEmailType" :disabled="getEmailDisabled"  @click="getEmailCaptcha()">{{emailText}}</el-link>
+                                        </template>
+                                    </el-input>
+                                </el-form-item>
+                                <el-button type="primary" @click="submitForm('captchaForm')" :loading="loading">登陆</el-button>
+                                <el-button @click="resetForm('captchaForm')">清空</el-button>
+                            </el-form>
+                        </el-tab-pane>
                     </el-tabs>
           </el-col>
     </el-row>
@@ -124,6 +144,10 @@ import { Base64 } from 'js-base64';
                     password: {required: true, message: '密码不能为空'},
                     mail: { required: true, validator: checkEmail},
                 },
+                captchaRules: {
+                    mail: { required: true, validator: checkEmail},
+                    captcha: { required: true, message: '验证码不能为空'},
+                },
                 loginForm: {
                     account: '',
                     password: '',
@@ -136,8 +160,18 @@ import { Base64 } from 'js-base64';
                     password: '',
                     mail: '',
                 },
+                captchaForm: {
+                    mail: '',
+                    captcha: '',
+                },
                 loading: false,
+                // 登录验证码
                 captchaBase64: '',
+
+                // 邮箱登录
+                emailText: '获取验证码',
+                getEmailDisabled: false,
+                getEmailType: "success",
             };
         },
         methods: {
@@ -182,13 +216,23 @@ import { Base64 } from 'js-base64';
                                     }
                                 })
                             } else {
-                                this.$axios.get('/user/login', {
-                                    params: {
+                                var params
+                                // 验证码登录
+                                if(formName == 'captchaForm') {
+                                    params = {
+                                        email: this.captchaForm.mail,
+                                        captcha: this.captchaForm.captcha,
+                                    }
+                                } else {
+                                    params = {
                                         account: this.loginForm.account,
                                         password: this.loginForm.password,
                                         captcha: this.loginForm.captcha,
                                         captchaKey: this.loginForm.captchaKey,
                                     }
+                                }
+                                this.$axios.get('/user/login', {
+                                    params
                                 }).then((e)=>{
                                     if(e.data.success) {
                                         let splits = e.data.Data.split('.')
@@ -219,7 +263,6 @@ import { Base64 } from 'js-base64';
                 this.$refs[formName].resetFields();
             },
             getCaptcha(captchaKey) {
-                console.log(captchaKey)
                 if(captchaKey != undefined && captchaKey != "") {
                     this.$axios.put('/captcha', {captchaKey:captchaKey}).then((e)=>{
                         if(e.data.success) {
@@ -240,6 +283,39 @@ import { Base64 } from 'js-base64';
                     }
                 })
             },
+            // 获取邮箱验证码
+            getEmailCaptcha() {
+                this.$refs["captchaForm"].validateField(['mail'], (err) => 
+                {
+                    if(!err) {
+                        this.$axios.post('/email',{
+                            email: this.captchaForm.mail,
+                        }).then((e)=>{
+                            if (!e.data.success) {
+                                this.$message.error('获取验证码失败：'+e.data.message)
+                                return
+                            } 
+                            this.$message.success("验证码已成功发送")
+                            this.getEmailDisabled = true
+                            this.getEmailType = "info"
+                            let time = 60
+                            let that = this
+                            let itel = setInterval(function(){
+                                that.emailText = time + "秒后重试"
+                                time--
+                                if (time == 0) {
+                                    clearInterval(itel)
+                                    that.getEmailDisabled = false
+                                    that.getEmailType = "success"
+                                    that.emailText = "获取验证码"
+                                }
+                            }, 1000)
+                            
+                        })
+                    }
+                })
+                
+            }
         },
         created() {
             this.getCaptcha()
