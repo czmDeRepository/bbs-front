@@ -11,16 +11,33 @@
                             <el-divider></el-divider>
                             <el-form-item
                                 label="账号"
-                                prop="account"
-                                :rules="[
+                                prop="account">
+                                <!-- :rules="[
                                 { required: true, message: '账号不能为空'},
-                                ]">
+                                ]"> -->
                                 <el-input prefix-icon="el-icon-user-solid" placeholder="请输入账号" type="text" v-model="loginForm.account"></el-input>
                             </el-form-item>
                             <el-form-item
                                 label="密码"
                                 prop="password">
                                 <el-input prefix-icon="el-icon-lock" placeholder="请输入密码" v-model="loginForm.password" show-password></el-input>
+                            </el-form-item>
+                            <el-form-item
+                                label="验证码"
+                                prop="captcha">
+                                <el-row >
+                                    <el-col :span="16">
+                                        <el-input prefix-icon="el-icon-lock" placeholder="请输入验证码" v-model="loginForm.captcha">
+                                        </el-input>
+                                    </el-col>
+                                    <el-col :span="8">
+                                        <el-image style="height:40px; cursor:pointer;" :src="captchaBase64" @click="getCaptcha(loginForm.captchaKey)">
+                                            <div slot="error" class="image-slot">
+                                                <i class="el-icon-picture-outline"></i>
+                                            </div>
+                                        </el-image>
+                                    </el-col>
+                                </el-row>
                             </el-form-item>
                                 <el-button type="primary" @click="submitForm('loginForm')" :loading="loading">登陆</el-button>
                                 <el-button @click="resetForm('loginForm')">清空</el-button>
@@ -97,8 +114,9 @@ import { Base64 } from 'js-base64';
             return {
                 isExist: false,
                 loginRules: {
-                    name: { required: true, message: '用户名不能为空'},
+                    account: { required: true, message: '账号不能为空'},
                     password: {required: true, message: '密码不能为空'},
+                    captcha: {required: true, message: '验证码不能为空'},
                 },
                 registerRules: {
                     account: { required: true, validator: checkAccount},
@@ -109,6 +127,8 @@ import { Base64 } from 'js-base64';
                 loginForm: {
                     account: '',
                     password: '',
+                    captcha: '',
+                    captchaKey: '',
                 },
                 registerForm: {
                     name: '',
@@ -117,7 +137,7 @@ import { Base64 } from 'js-base64';
                     mail: '',
                 },
                 loading: false,
-
+                captchaBase64: '',
             };
         },
         methods: {
@@ -166,6 +186,8 @@ import { Base64 } from 'js-base64';
                                     params: {
                                         account: this.loginForm.account,
                                         password: this.loginForm.password,
+                                        captcha: this.loginForm.captcha,
+                                        captchaKey: this.loginForm.captchaKey,
                                     }
                                 }).then((e)=>{
                                     if(e.data.success) {
@@ -196,6 +218,31 @@ import { Base64 } from 'js-base64';
             resetForm(formName) {
                 this.$refs[formName].resetFields();
             },
+            getCaptcha(captchaKey) {
+                console.log(captchaKey)
+                if(captchaKey != undefined && captchaKey != "") {
+                    this.$axios.put('/captcha', {captchaKey:captchaKey}).then((e)=>{
+                        if(e.data.success) {
+                            this.captchaBase64 = e.data.Data.image
+                            this.loginForm.captchaKey = e.data.Data.captchaKey
+                        } else {
+                            this.$message.error('获取验证码失败')
+                        }
+                    })
+                    return
+                }
+                this.$axios.get('/captcha').then((e)=>{
+                    if(e.data.success) {
+                        this.captchaBase64 = e.data.Data.image
+                        this.loginForm.captchaKey = e.data.Data.captchaKey
+                    } else {
+                        this.$message.error('获取验证码失败')
+                    }
+                })
+            },
+        },
+        created() {
+            this.getCaptcha()
         },
     }
 </script>
