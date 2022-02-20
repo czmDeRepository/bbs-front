@@ -62,6 +62,13 @@
                                 prop="mail">
                                 <el-input prefix-icon="el-icon-message" placeholder="请输入邮箱" type="text" v-model="registerForm.mail"></el-input>
                             </el-form-item>
+                            <el-form-item label="验证码" prop="captcha">
+                                    <el-input prefix-icon="el-icon-lock" placeholder="请输入验证码" v-model="registerForm.captcha">
+                                        <template slot="append">
+                                             <el-link :type="registerForm.getEmailType" :disabled="registerForm.getEmailDisabled"  @click="getEmailCaptcha('registerForm', registerForm)">{{registerForm.emailText}}</el-link>
+                                        </template>
+                                    </el-input>
+                                </el-form-item>
                             <el-form-item
                                 label="密码"
                                 prop="password"
@@ -84,7 +91,7 @@
                                 <el-form-item label="验证码" prop="captcha">
                                     <el-input prefix-icon="el-icon-lock" placeholder="请输入验证码" v-model="captchaForm.captcha">
                                         <template slot="append">
-                                             <el-link :type="getEmailType" :disabled="getEmailDisabled"  @click="getEmailCaptcha()">{{emailText}}</el-link>
+                                             <el-link :type="captchaForm.getEmailType" :disabled="captchaForm.getEmailDisabled"  @click="getEmailCaptcha('captchaForm', captchaForm)">{{captchaForm.emailText}}</el-link>
                                         </template>
                                     </el-input>
                                 </el-form-item>
@@ -114,6 +121,10 @@ import { Base64 } from 'js-base64';
                     return callback(new Error('邮箱不能为空'))
                 }
                 if (mailReg.test(value)) {
+                    if(this.emailExisted) {
+                        this.emailExisted = false
+                        return callback(new Error('邮箱已被注册'))
+                    }
                     callback()
                 } else {
                     callback(new Error('请输入正确的邮箱格式'))
@@ -124,17 +135,18 @@ import { Base64 } from 'js-base64';
                 if (!value) {
                     return callback(new Error('账号不能为空'))
                 }
-                if (this.isExist) {
-                    this.isExist = false
+                if (this.accountExisted) {
+                    this.accountExisted = false
                     return callback(new Error('账号已存在'))
                 } else {
                     callback()
                 }
             }
             return {
-                isExist: false,
+                accountExisted: false,
+                emailExisted: false,
                 loginRules: {
-                    account: { required: true, message: '账号不能为空'},
+                    account: { required: true, validator: checkAccount},
                     password: {required: true, message: '密码不能为空'},
                     captcha: {required: true, message: '验证码不能为空'},
                 },
@@ -143,6 +155,7 @@ import { Base64 } from 'js-base64';
                     name: { required: true, message: '用户名不为空'},
                     password: {required: true, message: '密码不能为空'},
                     mail: { required: true, validator: checkEmail},
+                    captcha: {required: true, message: '验证码不能为空'},
                 },
                 captchaRules: {
                     mail: { required: true, validator: checkEmail},
@@ -159,19 +172,25 @@ import { Base64 } from 'js-base64';
                     account: '',
                     password: '',
                     mail: '',
+                    captcha: '',
+                    isExisted: false,
+                    // 邮箱验证
+                    emailText: '获取验证码',
+                    getEmailDisabled: false,
+                    getEmailType: "success",
                 },
                 captchaForm: {
                     mail: '',
                     captcha: '',
+                    isExisted: true,
+                    // 邮箱验证
+                    emailText: '获取验证码',
+                    getEmailDisabled: false,
+                    getEmailType: "success",
                 },
                 loading: false,
                 // 登录验证码
                 captchaBase64: '',
-
-                // 邮箱登录
-                emailText: '获取验证码',
-                getEmailDisabled: false,
-                getEmailType: "success",
             };
         },
         methods: {
@@ -187,6 +206,7 @@ import { Base64 } from 'js-base64';
                                     account: this.registerForm.account,
                                     password: this.registerForm.password,
                                     email: this.registerForm.mail,
+                                    captcha: this.registerForm.captcha,
                                 }).then((e)=>{
                                     if(e.data.success) {
                                         let splits = e.data.Data.split('.')
@@ -204,16 +224,29 @@ import { Base64 } from 'js-base64';
                                             type: 'success'
                                         });
                                         this.$emit("success")
-                                    } else if (e.data.code == 3000) {
-                                        this.$notify.error({
-                                            title: '错误',
-                                            message: '账号已存在'
-                                        });
-                                        this.isExist = true
-                                        this.$refs['registerForm'].validate((v)=>false);
                                     } else {
-                                        this.$message.error(`注册失败: message ${e.data.message} ,data:${e.data.Data}`)
-                                    }
+                                        switch(e.data.code) {
+                                            case 3000:
+                                                this.$notify.error({
+                                                    title: '错误',
+                                                    message: '账号已存在'
+                                                });
+                                                this.accountExisted = true
+                                                this.$refs['registerForm'].validate((v)=>false);
+                                                break
+                                            case 3030:
+                                                this.$notify.error({
+                                                    title: '错误',
+                                                    message: '邮箱已被注册'
+                                                });
+                                                this.emailExisted = true
+                                                this.$refs['registerForm'].validate((v)=>false);
+                                                break
+                                            default:
+                                                this.$message.error(`注册失败: ${e.data.message}`)
+                                        }
+                                        
+                                    } 
                                 })
                             } else {
                                 var params
@@ -284,36 +317,47 @@ import { Base64 } from 'js-base64';
                 })
             },
             // 获取邮箱验证码
-            getEmailCaptcha() {
-                this.$refs["captchaForm"].validateField(['mail'], (err) => 
+            getEmailCaptcha(name, form) {
+                this.$refs[name].validateField(['mail'], (err) => 
                 {
                     if(!err) {
                         this.$axios.post('/email',{
-                            email: this.captchaForm.mail,
+                            email: form.mail,
+                            isExisted: form.isExisted,
                         }).then((e)=>{
                             if (!e.data.success) {
-                                this.$message.error('获取验证码失败：'+e.data.message)
+                                if (e.data.code == 3030) {
+                                    this.$notify.error({
+                                        title: '错误',
+                                        message: '邮箱已被注册'
+                                    });
+                                    this.emailExisted = true
+                                    this.$refs['registerForm'].validate((v)=>false);
+                                    return
+                                } else {
+                                    this.$message.error('获取验证码失败：'+e.data.message)
+                                }
                                 return
-                            } 
+                            }
                             this.$message.success("验证码已成功发送")
-                            this.getEmailDisabled = true
-                            this.getEmailType = "info"
+                            form.getEmailDisabled = true
+                            form.getEmailType = "info"
                             let time = 60
-                            let that = this
                             let itel = setInterval(function(){
-                                that.emailText = time + "秒后重试"
+                                form.emailText = time + "s后重试"
                                 time--
                                 if (time == 0) {
                                     clearInterval(itel)
-                                    that.getEmailDisabled = false
-                                    that.getEmailType = "success"
-                                    that.emailText = "获取验证码"
+                                    form.getEmailDisabled = false
+                                    form.getEmailType = "success"
+                                    form.emailText = "获取验证码"
                                 }
                             }, 1000)
                             
                         })
                     }
                 })
+                
                 
             }
         },
