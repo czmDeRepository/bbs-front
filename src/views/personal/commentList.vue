@@ -71,7 +71,7 @@
         </el-pagination>
         <div class="articleDetail">
         <el-dialog
-                :visible.sync="dialogVisible"
+                :visible.sync="articleVisible"
                 width="90%" :destroy-on-close="false" top="2vh" >
                 <ArticleDetail :id="articleId" :isDialog="true"></ArticleDetail>
             </el-dialog>
@@ -120,7 +120,7 @@ export default {
             emojiDisplay: false,
 
             // 帖子
-            dialogVisible: false,
+            articleVisible: false,
             articleId: '',
         }
     },
@@ -225,7 +225,7 @@ export default {
         // 查看评论帖子
         showArticle(articleId) {
             this.articleId = articleId
-            this.dialogVisible = true
+            this.articleVisible = true
         },
     },
     created() {
