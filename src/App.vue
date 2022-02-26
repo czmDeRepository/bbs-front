@@ -6,7 +6,8 @@
 </template>
 
 <script>
-
+// css 抖动效果
+import '@/static/css/keyframes_a.css'
 export default {
   name: 'App',
   components: {
