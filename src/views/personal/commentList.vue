@@ -10,6 +10,8 @@
                 type="textarea"
                 :rows="2"
                 v-model="commentContent"
+                maxlength="255"
+                show-word-limit
                 ></el-input>
                     <el-button class="emoji" size="small" type="info" plain @click="displayEmoji">Emoji表情</el-button>
                     <el-button size="small" type="primary" @click="modifyCommentCommit">  确 定</el-button>

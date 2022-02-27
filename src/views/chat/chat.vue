@@ -330,6 +330,9 @@ export default {
             .content {
                 font: 14px/30px arial;
                 text-align: left;
+                overflow-wrap: break-word;
+                white-space: pre-wrap;
+                word-break: break-all;
             }
             .left {
                 position: absolute;

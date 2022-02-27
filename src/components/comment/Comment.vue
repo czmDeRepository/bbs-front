@@ -11,7 +11,10 @@
 				  type="textarea"
 				  :autosize="{ minRows: minRows, maxRows: maxRows}"
 				  :placeholder=placeholder
-				  v-model="textareaMap[0]">
+				  v-model="textareaMap[0]"
+				  maxlength="255"
+                  show-word-limit
+				  >
 				</el-input>
 
 				 <div v-if="buttonMap[0]" class="hbl-owo">
@@ -86,7 +89,9 @@
 												  type="textarea"
 												  :autosize="{ minRows: minRows, maxRows: maxRows}"
 												  :placeholder=placeholder
-												  v-model="textareaMap[item.id]">
+												  v-model="textareaMap[item.id]"
+												  maxlength="255"
+                								  show-word-limit>
 												</el-input>
 
 												 <div v-if="buttonMap[item.id]" class="hbl-owo">
@@ -161,7 +166,9 @@
 									type="textarea"
 									:autosize="{ minRows: minRows, maxRows: maxRows}"
 									:placeholder=placeholder
-									v-model="textareaMap[ritem.id]">
+									v-model="textareaMap[ritem.id]"
+									maxlength="255"
+                					show-word-limit>
 								</el-input>
 
 									<div v-if="buttonMap[ritem.id]" class="hbl-owo">
