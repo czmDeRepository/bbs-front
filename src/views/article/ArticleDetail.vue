@@ -284,7 +284,12 @@ export default {
                     token: store.getToken(),
                 }
             }).then((e)=>{
-                this.getComment()
+                if(e.data.success) {
+                    this.$message.success('评论成功')
+                    this.getComment()
+                } else {
+                    this.$message.error('评论失败')
+                }
             })
 
         },
@@ -307,7 +312,12 @@ export default {
                     token: store.getToken(),
                 }
             }).then((e)=>{
-                 this.getComment()
+                if(e.data.success) {
+                    this.$message.success('回复成功')
+                    this.getComment()
+                } else {
+                    this.$message.error('回复失败')
+                }
             })
         },
         // 获取评论

@@ -1,6 +1,6 @@
 <template>
 	<div class="user">
-		<div class="user-img"><img :src="avatar?avatar:require('./img/icon/avatar.jpg')"/></div>
+		<div class="user-img"><img :src="avatar?avatar:require('@/static/img/icon/avatar.jpg')"/></div>
 	</div>
 </template>
 
