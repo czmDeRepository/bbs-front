@@ -110,6 +110,7 @@
 
 <script>
 import store from '@/services/store.js'
+import tool from '@/services/tools.js'
 import { Base64 } from 'js-base64';
     export default {
         data() 
@@ -146,14 +147,26 @@ import { Base64 } from 'js-base64';
                 accountExisted: false,
                 emailExisted: false,
                 loginRules: {
-                    account: { required: true, validator: checkAccount},
-                    password: {required: true, message: '密码不能为空'},
+                    account: [
+                        { required: true, validator: checkAccount},
+                        { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: 'change' }
+                    ],
+                    password: [
+                        { required: true, message: '密码不能为空'},
+                        { min: 6, max: 32, message: '长度在 6 到 32 个字符', trigger: 'change' }
+                    ],
                     captcha: {required: true, message: '验证码不能为空'},
                 },
                 registerRules: {
-                    account: { required: true, validator: checkAccount},
+                    account: [
+                        { required: true, validator: checkAccount},
+                        { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: 'change' }
+                    ],
                     name: { required: true, message: '用户名不为空'},
-                    password: {required: true, message: '密码不能为空'},
+                    password: [
+                        { required: true, message: '密码不能为空'},
+                        { min: 6, max: 12, message: '长度在 6 到 32 个字符', trigger: 'change' }
+                    ],
                     mail: { required: true, validator: checkEmail},
                     captcha: {required: true, message: '验证码不能为空'},
                 },
@@ -204,7 +217,7 @@ import { Base64 } from 'js-base64';
                                 this.$axios.post('/user',{
                                     name: this.registerForm.name,
                                     account: this.registerForm.account,
-                                    password: this.registerForm.password,
+                                    password: tool.encrypt(this.registerForm.password),
                                     email: this.registerForm.mail,
                                     captcha: this.registerForm.captcha,
                                 }).then((e)=>{
@@ -259,7 +272,7 @@ import { Base64 } from 'js-base64';
                                 } else {
                                     params = {
                                         account: this.loginForm.account,
-                                        password: this.loginForm.password,
+                                        password: tool.encrypt(this.loginForm.password),
                                         captcha: this.loginForm.captcha,
                                         captchaKey: this.loginForm.captchaKey,
                                     }
