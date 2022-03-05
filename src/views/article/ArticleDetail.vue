@@ -325,7 +325,7 @@ export default {
             this.$axios.get(`/comment`, {
                 params: {
                     articleId: this.id,
-                    repliedUserId: -1,
+                    repliedUserId: 0,
                     pageNum: -1,
                     pageSize: -1,
                 }

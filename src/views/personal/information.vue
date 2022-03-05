@@ -299,7 +299,7 @@ export default {
          this.$refs[formName].validate((valid) => {
             if(valid) {
                 this.$axios.put('user',{
-                    password: this.passwordForm.password,
+                    password: tools.encrypt(this.passwordForm.password),
                     isExisted: true,
                     captcha: this.passwordForm.captcha,
                     account: this.userForm.account,

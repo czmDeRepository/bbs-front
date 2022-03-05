@@ -1,5 +1,6 @@
 
 import store from './store.js'
+import { JSEncrypt } from 'jsencrypt'
 export default{
     dateFormat(date) {
         let fmt = "yyyy-MM-dd hh:mm:ss"
@@ -76,5 +77,12 @@ export default{
     stopRefreshToken() {
         clearInterval(this.refreshInterval)
         this.refreshInterval = null
-    }
+    },
+    // rsa加密
+    encrypt(param) {
+        let encrypt = new JSEncrypt()
+        let PublicKey = "-----BEGIN RSA PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoKjkQK3Km4iVXuzehVUr7dLjRAQ7vQdurVOBa4LrlYL1L4bmdmm8WPsaI5b540E0i/MPBvQbmjXxwlreECIPuMs2ni2yESSeLsfKUwEUipVv1r0X/LhRSFh/G0qVe6uheCIGdgiMXu0g+HlEj5FOjoZwKYUwo7CpQprP4Mi/aRK7hQnZqV7eWTPRj187BqNpecx+0uD4ju6bbePr+r/CQ7s879l+jZk4J40sY1wq6+Xmq2yZd9xT+sZtW8DhbIb8+vgdA6Qn/lydIwW/BphYVdi6/89Ah/Yx975tjJYFZppT3O0Bnzka4LYZaHvypqlPwvGpDfT6cQkEIycWqUn0NwIDAQAB-----END RSA PUBLIC KEY-----"
+        encrypt.setPublicKey(PublicKey)
+        return encrypt.encrypt(JSON.stringify(param))
+    },
 }
