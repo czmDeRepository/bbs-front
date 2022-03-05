@@ -237,7 +237,6 @@ export default {
         websocket.onOpen = ()=> {
             this.$message.success('加入群聊成功')
             this.isOnline = true
-            console.log('成功加入群聊。')
         }
         websocket.onMessage = (msg)=> {
             let message = JSON.parse(msg.data)

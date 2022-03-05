@@ -2,14 +2,28 @@
     <div>
         <el-container>
             <el-main>
-                <router-view/>
+                <router-view @articleDetail="articleDetail"></router-view>
                 <el-backtop target=".el-main" :bottom="100" :right="350"></el-backtop>
             </el-main>
             <el-aside>
                 <div>
                     <el-calendar v-model="value"></el-calendar>
                 </div>
-                <div style="padding: 25px 10px;">
+                 <div style="padding: 20px 15px;">
+                    <el-card class="information_statistics" shadow="hover"> 
+                        
+                        <div slot="header" class="clearfix">
+                            <el-tooltip class="item" effect="dark" content="最近一小时浏览的至多10篇论贴" placement="top">
+                                <i class="el-icon-time"></i>
+                                <em><b>最近浏览</b></em>
+                            </el-tooltip>
+                        </div>
+                        <div v-for="(item,index) in RecentBrowsing" :key="index" class="recent_browsing">
+                            <el-link type="primary" @click="readArticle(item)"><em>{{index+1}}: {{item.title}}</em></el-link>
+                        </div>
+                    </el-card>
+                </div>
+                <div style="padding: 0px 15px 10px 15px;">
                     <el-card class="information_statistics" shadow="hover">
                         <div slot="header" class="clearfix">
                             <i class="iconfont  icon-tongji"></i>
@@ -45,7 +59,8 @@
 
 <script>
 
-
+import store from '@/services/store.js'
+import { intAt } from 'jsencrypt/lib/lib/jsbn/jsbn'
 export default {
     name: "AppMain",
     components: {
@@ -59,19 +74,47 @@ export default {
             totalChatPersonNum: 9999,
             totalReadNum: 9999,
             totalUserNum: 9999,
-        }
+        },
+        RecentBrowsing: [],
+
       }
     },
     methods: {
         refreshInformation() {
             this.$axios.get('/information').then((e)=>{
-                console.log(e.data.Data)
                 this.information = e.data.Data
             })
+        },
+        readArticle(article) {
+            this.$router.push({name:'mainArticleDetail', params:{id: article.id}})
+            this.articleDetail(article)
+        },
+        articleDetail(article) {
+            for (let i = 0; i < this.RecentBrowsing.length; i++) {
+                if(article.id == this.RecentBrowsing[i].id) {
+                    // 删除下标为i开始的一个元素
+                    this.RecentBrowsing.splice(i, 1)
+                }
+            }
+            let len = this.RecentBrowsing.unshift(
+                {
+                    id:article.id,
+                    title:article.title,
+                }
+            )
+            if(len > 10) {
+                this.RecentBrowsing.pop()   
+            }
+            store.set("RecentBrowsing", JSON.stringify(this.RecentBrowsing))
         }
     },
     created() {
         this.refreshInformation()
+        this.RecentBrowsing = JSON.parse(store.get("RecentBrowsing"))
+        // 防止无数据空异常
+        if(this.RecentBrowsing == null) {
+            this.RecentBrowsing = []
+        }
     }
 }
 </script>
@@ -113,5 +156,9 @@ export default {
     b {
         margin-right: 5px;
     }
+}
+.recent_browsing {
+    border-radius: 4px;
+    padding: 2px;
 }
 </style>

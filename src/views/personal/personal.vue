@@ -4,7 +4,7 @@
   <div class="person">
     <!-- <canvas id="canvas">
   </canvas> -->
-      <el-button style="float: right;" type="info" plain @click="$router.go(-1)">返回</el-button>
+      <el-button style="float: right;" type="info" plain @click="store.clearArticleParams();$router.go(-1)">返回</el-button>
     <div class="personal">
         <el-row>
         <el-tabs type="border-card" :stretch="true" style="overflow:auto" v-model="activeName">
@@ -45,6 +45,7 @@ export default {
     },
     data() {
       return {
+        store,
         activeName: 'article',
         userId: store.getUserId(),
       }

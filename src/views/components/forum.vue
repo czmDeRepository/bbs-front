@@ -14,18 +14,18 @@
                 </el-select>
             </el-col>
             <el-col :span="3">
-                <el-select v-model="selectLabel" :multiple="true" collapse-tags filterable  placeholder="请选择标签" >
+                <el-select v-model="params.selectLabel" :multiple="true" collapse-tags filterable  placeholder="请选择标签" >
                     <el-option v-for="item in labelList" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
             </el-col>
             <el-col :span="3">
-                <el-select v-model="selectCategory" :clearable="true" filterable  placeholder="请选择分类">
+                <el-select v-model="params.selectCategory" :clearable="true" filterable  placeholder="请选择分类">
                 <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
             </el-col>
             <el-col :span="8">
                     <el-date-picker
-                        v-model="rangeTime"
+                        v-model="params.rangeTime"
                         type="datetimerange"
                         align="right"
                         start-placeholder="开始日期"
@@ -36,7 +36,7 @@
             </el-col>
             <el-col  :span="isAdmin || userId != '0' && !followingFlag ? 7 : 10">
                 <div class="filter">
-                <el-input v-model="title" placeholder="请输入论贴标题" class="input-with-select">
+                <el-input v-model="params.title" placeholder="请输入论贴标题" class="input-with-select">
                     <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
                 </el-input>
                 </div>
@@ -56,7 +56,7 @@
                         </el-table-column>
                         <el-table-column prop="title" label="论贴标题">
                             <template slot-scope="scope">
-                               <el-button type="primary" plain @click="artilceDetial(scope.row.id)">{{scope.row.title}}</el-button>
+                               <el-button type="primary" plain @click="artilceDetial(scope.row)">{{scope.row.title}}</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column prop="readCount" label="阅读数量" width="100" sortable="custom" :sort-orders="['ascending', 'descending']">
@@ -86,11 +86,11 @@
                     <el-pagination
                     @size-change="handleSizeChange"
                     @current-change="handleCurrentChange"
-                    :current-page.sync="pageNum"
+                    :current-page.sync="params.pageNum"
                     :page-sizes="[5, 10, 30, 50, 100]"
-                    :page-size="pageSize"
+                    :page-size="params.pageSize"
                     layout="sizes, prev, pager, next"
-                    :total="total">
+                    :total="params.total">
                     </el-pagination>
                 </div>
             </div>
@@ -136,26 +136,23 @@ export default {
     data() {
         return {
             loading: false,
-            // 筛选
-            selectLabel: [],
-            selectCategory: '',
-            rangeTime: null,
-            title: '',
-            //  分页
-            pageNum: 1,
-            pageSize: 5,
-            total: 0,
             // 排序
             sortParam: {
                 updateTime: 0,
                 createTime: 1,
                 readCount: 2
             },
-            params : new Object({
-                pageNum: this.pageNum,
-                pageSize: this.pageSize,
+            params : {
+                // 筛选
+                selectLabel: [],
+                selectCategory: '',
+                rangeTime: null,
+                title: '',
+                total: 0,
+                pageNum: 1,
+                pageSize: 5,
                 status: '2',
-            }),
+            },
             content_list:[
                 // {
                 //     id: 0,
@@ -201,15 +198,15 @@ export default {
     },
     methods: {
         search() {
-            this.pageNum = 1
+            this.params.pageNum = 1
             this.getArticle()
         },
         handleSizeChange(val) {
-            this.pageSize = val
+            this.params.pageSize = val
             this.getArticle()
         },
         handleCurrentChange(val) {
-            this.pageNum = val
+            this.params.pageNum = val
             this.getArticle()
         },
         sort(e) {
@@ -223,45 +220,34 @@ export default {
         },
         getArticle() {
             this.loading = true
-            this.params.pageNum = this.pageNum
-            this.params.pageSize = this.pageSize
-            
-            if (this.rangeTime != null) {
-                this.params.startTime = tools.dateFormat(this.rangeTime[0])
-                this.params.endTime = tools.dateFormat(this.rangeTime[1])
-            } else {
-                delete this.params.startTime
-                delete this.params.startTime
+            let params = new Object()
+            params.pageNum = this.params.pageNum
+            params.pageSize = this.params.pageSize
+            if (this.params.rangeTime != null) {
+                params.startTime = tools.dateFormat(this.params.rangeTime[0])
+                params.endTime = tools.dateFormat(this.params.rangeTime[1])
             }
-            if (this.selectLabel.length > 0) {
-                this.params.labelIdList = this.selectLabel.join()
-            } else {
-                delete this.params.labelIdList
+            if (this.params.selectLabel.length > 0) {
+                params.labelIdList = this.params.selectLabel.join()
             }
-            if (this.selectCategory != '') {
-                this.params.categoryId = this.selectCategory
-            } else {
-                delete this.params.categoryId
+            if (this.params.selectCategory != '') {
+                params.categoryId = this.params.selectCategory
             }
-            if (this.title != '') {
-                this.params.title = this.title
-            } else {
-                delete this.params.title
+            if (this.params.title != '') {
+                params.title = this.params.title
             }
             var headers = {}
-            this.params.followingFlag = this.followingFlag
+            params.followingFlag = this.followingFlag
             if(this.followingFlag) {
                 headers.token = store.getToken()
             } else {
                 // 我的论贴
                 if (this.userId != "0") {
-                    this.params.userId = this.userId
-                } else {
-                    delete this.params.userId
+                    params.userId = this.userId
                 }
             }
             // 论坛获取
-            this.$axios.get("/article",{params:this.params,headers}).then((data)=>{
+            this.$axios.get("/article",{params:params,headers}).then((data)=>{
                 if(data.data.success) {
                     let page = data.data.Data
                     if (page.data != null) {
@@ -269,9 +255,7 @@ export default {
                     } else {
                         this.content_list = []
                     }
-                    // this.pageNum = page.pageNum
-                    // this.pageSize = page.pageSize
-                    this.total = page.total
+                    this.params.total = page.total
                 } else {
                     this.$message.error(`论坛列表获取失败${data.data.message}`)
                 }         
@@ -282,18 +266,20 @@ export default {
             })
         },
          // 论坛详情
-        artilceDetial(id) {
+        artilceDetial(article) {
             if(this.followingFlag || this.isAdmin) {
                 // this.$router.push({name:'ArticleDetail', path: `/articleDetail/${id}/margin: 0px 15%`})
                 // this.$router.push({name:'articleDetail', params:{id: id, marginStyle: 'padding: 0px 15%'}})
-                this.articleId = id
+                this.articleId = article.id
                 this.dialogVisible = true
             } else if(this.userId != '0') {
                 // 修改页面
-                this.$router.push(`/article/write/${id}`)
+                this.$router.push(`/article/write/${article.id}`)
             } else {
-                this.$router.push({name:'mainArticleDetail', params:{id: id}})
+                this.$emit('articleDetail', article)
+                this.$router.push({name:'mainArticleDetail', params:{id: article.id}})
             }
+            store.setArticleParams(this.params)
         },
         modifyArticle(id, status) {
             this.$axios.put('/article',{
@@ -327,8 +313,16 @@ export default {
         }).then((e)=>{
             this.categoryList = e.data.Data.data
         })
+        let params = store.getArticleParams()
+        if(params != null) {
+            this.params = params
+            // 字符串转对象
+            if(this.params.rangeTime != null) {
+                this.params.rangeTime[0] = new Date(Date.parse(this.params.rangeTime[0]))
+                this.params.rangeTime[1] = new Date(Date.parse(this.params.rangeTime[1]))
+            }
+        }
         this.getArticle()
-
     }
 }
 </script>

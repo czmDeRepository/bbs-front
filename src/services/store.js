@@ -32,4 +32,14 @@ export default{
     getUserHeader() {
         return localStorage.getItem("headerUrl")
     },
+    // 论贴查询参数
+    setArticleParams(params) {
+        this.set('artilceListParams', JSON.stringify(params))
+    },
+    getArticleParams() {
+        return JSON.parse(this.get('artilceListParams'))
+    },
+    clearArticleParams() {
+        localStorage.removeItem('artilceListParams')
+    }
 }

@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="22"  align="left">
         <em>
-          <a href="javascript:void(0);" @click="$router.push('/')">
+          <a href="javascript:void(0);" @click="store.clearArticleParams();$router.push('/')">
             <b class="headerTitle">
               在线论坛平台
             </b>
@@ -62,6 +62,8 @@ export default {
     },
     methods: {
         handleCommand(command) {
+          // 清空论贴参数
+          store.clearArticleParams()
           switch(command) {
             case 'login':
               this.dialogVisible = true
