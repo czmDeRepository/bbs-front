@@ -98,7 +98,9 @@ export default {
         },
         successLogin() {
             this.dialogVisible = false
-            this.circleUrl = this.$axios.defaults.baseURL + store.getUserHeader()
+            if(store.getUserHeader() != '') {
+              this.circleUrl = this.$axios.defaults.baseURL + store.getUserHeader()
+            }
             tools.refreshToken(this)
         },
         // 编写论贴

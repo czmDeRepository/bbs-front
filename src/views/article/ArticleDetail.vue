@@ -415,7 +415,11 @@ export default {
                 that.$axios.get('/user', {params:{id:article.userId}}).then((e)=>{
                     if(e.data.success && e.data.Data.data.length > 0) {
                         that.owner = e.data.Data.data[0]
-                        that.owner.imageUrl = that.$axios.defaults.baseURL + that.owner.imageUrl
+                        if(that.owner.imageUrl != '') {
+                            that.owner.imageUrl = that.$axios.defaults.baseURL + that.owner.imageUrl
+                        } else {
+                            that.owner.imageUrl = require('@/static/defaultHeader.png')
+                        }
                     }
                 })
             })
