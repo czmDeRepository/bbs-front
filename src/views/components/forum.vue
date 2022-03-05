@@ -49,7 +49,7 @@
             <div v-else >
                 <div>
                     <el-table :data="content_list" style="width: 100%" @sort-change="sort" v-loading="loading" 
-                    :default-sort = "{prop: 'updateTime', order: 'descending'}"
+                    :default-sort="defaultSort"
                     >
                         <el-table-column type="index"  width="80">
                             
@@ -135,13 +135,18 @@ export default {
     },
     data() {
         return {
+            // 默认排序
+            defaultSort: {
+                prop: 'updateTime', 
+                order: 'descending'
+            },
             loading: false,
             // 排序
-            sortParam: {
-                updateTime: 0,
-                createTime: 1,
-                readCount: 2
-            },
+            sortParam: [
+                "updateTime",
+                "createTime",
+                "readCount",
+            ],
             params : {
                 // 筛选
                 selectLabel: [],
@@ -210,7 +215,12 @@ export default {
             this.getArticle()
         },
         sort(e) {
-            this.params.orderIndex = this.sortParam[e.prop]
+            for (let i = 0; i < this.sortParam.length; i++) {
+                if (this.sortParam[i] == e.prop) {
+                    this.params.orderIndex = i
+                    break
+                }
+            }
             if ("ascending" === e.order) {
                 this.params.isAsc = true
             } else {
@@ -228,6 +238,8 @@ export default {
             params.status = this.params.status
             params.pageNum = this.params.pageNum
             params.pageSize = this.params.pageSize
+            params.orderIndex = this.params.orderIndex
+            params.isAsc = this.params.isAsc
             if (this.params.rangeTime != null) {
                 params.startTime = tools.dateFormat(this.params.rangeTime[0])
                 params.endTime = tools.dateFormat(this.params.rangeTime[1])
@@ -327,6 +339,11 @@ export default {
                 if(this.params.rangeTime != null) {
                     this.params.rangeTime[0] = new Date(Date.parse(this.params.rangeTime[0]))
                     this.params.rangeTime[1] = new Date(Date.parse(this.params.rangeTime[1]))
+                }
+                // 表格排序设置
+                this.defaultSort.prop = this.sortParam[this.params.orderIndex]
+                if(this.params.isAsc) {
+                    this.defaultSort.order = "ascending"
                 }
             }
         }
