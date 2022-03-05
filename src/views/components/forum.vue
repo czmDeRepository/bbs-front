@@ -220,7 +220,12 @@ export default {
         },
         getArticle() {
             this.loading = true
+            if(!this.followingFlag && !this.isAdmin) {
+                // 主页和我的论贴列表每次获取论贴都保存查询数据
+                store.setArticleParams(this.params)
+            }
             let params = new Object()
+            params.status = this.params.status
             params.pageNum = this.params.pageNum
             params.pageSize = this.params.pageSize
             if (this.params.rangeTime != null) {
@@ -276,10 +281,10 @@ export default {
                 // 修改页面
                 this.$router.push(`/article/write/${article.id}`)
             } else {
+                store.setArticleParams(this.params)
                 this.$emit('articleDetail', article)
                 this.$router.push({name:'mainArticleDetail', params:{id: article.id}})
             }
-            store.setArticleParams(this.params)
         },
         modifyArticle(id, status) {
             this.$axios.put('/article',{
@@ -313,13 +318,16 @@ export default {
         }).then((e)=>{
             this.categoryList = e.data.Data.data
         })
-        let params = store.getArticleParams()
-        if(params != null) {
-            this.params = params
-            // 字符串转对象
-            if(this.params.rangeTime != null) {
-                this.params.rangeTime[0] = new Date(Date.parse(this.params.rangeTime[0]))
-                this.params.rangeTime[1] = new Date(Date.parse(this.params.rangeTime[1]))
+        // 关注列表和管理列表不需要获取保留参数
+        if(!this.followingFlag && !this.isAdmin) {
+            let params = store.getArticleParams()
+            if(params != null) {
+                this.params = params
+                // 字符串转对象
+                if(this.params.rangeTime != null) {
+                    this.params.rangeTime[0] = new Date(Date.parse(this.params.rangeTime[0]))
+                    this.params.rangeTime[1] = new Date(Date.parse(this.params.rangeTime[1]))
+                }
             }
         }
         this.getArticle()
