@@ -13,7 +13,7 @@
                     <el-card class="information_statistics" shadow="hover"> 
                         
                         <div slot="header" class="clearfix">
-                            <el-tooltip class="item" effect="dark" content="最近一小时浏览的至多10篇论贴" placement="top">
+                            <el-tooltip class="item" effect="dark" content="最近浏览的至多10篇论贴" placement="top">
                                 <i class="el-icon-time"></i>
                                 <em><b>最近浏览</b></em>
                             </el-tooltip>
