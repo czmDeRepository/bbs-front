@@ -24,13 +24,25 @@
               <el-avatar size="large" :src="circleUrl" @error="errorHandler"></el-avatar>
           </div>
           <el-dropdown-menu v-if="store.getUserId() == null" slot="dropdown">
-              <el-dropdown-item command="login">登陆</el-dropdown-item>
+              <el-dropdown-item command="login">
+                <i class="icon-denglu1 iconfont"></i>
+                登陆
+              </el-dropdown-item>
           </el-dropdown-menu>
           <el-dropdown-menu v-else slot="dropdown">
-              <el-dropdown-item  command="exit">退出登陆</el-dropdown-item>
-              <el-dropdown-item divided command="personal">个人中心</el-dropdown-item>
-              <el-dropdown-item v-if="store.getUserRole() > 1 && !$route.path.startsWith('/admin')" divided command="admin">管理平台</el-dropdown-item>
+              <el-dropdown-item command="personal">
+                <i class="el-icon-user"></i>
+                个人中心
+              </el-dropdown-item>
+              <el-dropdown-item v-if="store.getUserRole() > 1 && !$route.path.startsWith('/admin')" divided command="admin">
+                <i class="iconfont icon-yunyingguanli"></i>
+                管理平台
+              </el-dropdown-item>
               <el-dropdown-item v-else-if="$route.path.startsWith('/admin')" divided command="">首页</el-dropdown-item>
+              <el-dropdown-item divided command="exit">
+                <i class="iconfont icon-tuichu1"></i>
+                退出
+              </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </el-col>

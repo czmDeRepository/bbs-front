@@ -14,8 +14,7 @@
                         
                         <div slot="header" class="clearfix">
                             <el-tooltip class="item" effect="dark" content="最近浏览的至多10篇论贴" placement="top">
-                                <i class="el-icon-time"></i>
-                                <em><b>最近浏览</b></em>
+                                <em><i class="el-icon-time"></i><b>最近浏览</b></em>
                             </el-tooltip>
                         </div>
                         <div v-for="(item,index) in RecentBrowsing" :key="index" class="recent_browsing">

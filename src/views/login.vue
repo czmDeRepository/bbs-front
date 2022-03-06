@@ -65,7 +65,12 @@
                             <el-form-item label="验证码" prop="captcha">
                                     <el-input prefix-icon="el-icon-lock" placeholder="请输入验证码" v-model="registerForm.captcha">
                                         <template slot="append">
-                                             <el-link :type="registerForm.getEmailType" :disabled="registerForm.getEmailDisabled"  @click="getEmailCaptcha('registerForm', registerForm)">{{registerForm.emailText}}</el-link>
+                                             <el-link :type="registerForm.getEmailType" :disabled="registerForm.getEmailDisabled"  @click="getEmailCaptcha('registerForm', registerForm)">
+                                                <span>
+                                                    {{registerForm.emailText}}
+                                                </span>
+                                                <i class="iconfont icon-fasongyoujian"></i>
+                                             </el-link>
                                         </template>
                                     </el-input>
                                 </el-form-item>
@@ -91,7 +96,12 @@
                                 <el-form-item label="验证码" prop="captcha">
                                     <el-input prefix-icon="el-icon-lock" placeholder="请输入验证码" v-model="captchaForm.captcha">
                                         <template slot="append">
-                                             <el-link :type="captchaForm.getEmailType" :disabled="captchaForm.getEmailDisabled"  @click="getEmailCaptcha('captchaForm', captchaForm)">{{captchaForm.emailText}}</el-link>
+                                            <el-link :type="captchaForm.getEmailType" :disabled="captchaForm.getEmailDisabled"  @click="getEmailCaptcha('captchaForm', captchaForm)">
+                                                <span>
+                                                    {{captchaForm.emailText}}
+                                                </span>
+                                                <i class="iconfont icon-fasongyoujian"></i>
+                                            </el-link>
                                         </template>
                                     </el-input>
                                 </el-form-item>
