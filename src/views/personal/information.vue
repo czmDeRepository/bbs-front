@@ -64,13 +64,15 @@
             <el-row>
                 <el-form-item>
                     <el-button type="primary" size="small" @click="submitForm('userForm')">确认修改</el-button>
-                    <el-button type="danger" size="small" @click="changePassword">修改密码</el-button>
+                    <el-button type="danger" size="small" @click="emailPassword">邮箱密码</el-button>
                 </el-form-item>
             </el-row>
         </el-form>
         <el-dialog
-                :visible.sync="passwordVisible"
-                :destroy-on-close="false"  width="500px" center>
+            :visible.sync="dialogVisible"
+            :destroy-on-close="false"  width="500px" center :lazy="true">
+            <el-tabs :stretch="true">
+                <el-tab-pane label="修改密码">
                 <el-form :model="passwordForm" :rules="passwordRules" ref="passwordForm" label-width="100px" class="demo-ruleForm">
                     <el-form-item
                         label="新密码"
@@ -92,9 +94,37 @@
                         </el-input>
                     </el-form-item>
                     <el-form-item>
-                        <el-button type="danger" @click="passwordCommit('passwordForm')">确认</el-button>
+                        <el-button type="danger" @click="dialogCommit('passwordForm', passwordForm)">确认</el-button>
                     </el-form-item>
                 </el-form>
+                </el-tab-pane>
+                <el-tab-pane label="修改邮箱">
+                    <el-form :model="emailForm" :rules="emailRules" ref="emailForm" label-width="100px" >
+                        <el-form-item
+                            label="新邮箱"
+                            prop="newEmail"
+                            >
+                            <el-input prefix-icon="el-icon-lock" placeholder="请输入新邮箱" v-model="emailForm.newEmail"></el-input>
+                        </el-form-item>
+                        <el-form-item label="验证码" prop="captcha">
+                            <el-input prefix-icon="el-icon-lock" placeholder="请输入验证码" v-model="emailForm.captcha">
+                                <template slot="append">
+                                    <el-link :type="emailForm.getEmailType" :disabled="emailForm.getEmailDisabled"  @click="getEmailCaptcha('emailForm', emailForm)">{{emailForm.emailText}}</el-link>
+                                </template>
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item
+                            label="密码"
+                            prop="password"
+                            >
+                            <el-input prefix-icon="el-icon-lock" placeholder="请输入密码" v-model="emailForm.password" show-password></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="danger" @click="dialogCommit('emailForm', emailForm)">确认</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-tab-pane>
+            </el-tabs>
         </el-dialog>
     </div>
 </template>
@@ -178,7 +208,7 @@ export default {
             action: `${this.$axios.defaults.baseURL}/upload`,
             uploadFileName: 'image',
             //  密码
-            passwordVisible: false,
+            dialogVisible: false,
             passwordForm: {
                 password: '',
                 verifyPassword:'',
@@ -192,21 +222,48 @@ export default {
             passwordRules: {
                 password: [
                     { required: true, message: '请输入新密码', trigger: 'blur' },
-                    { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: 'change' }
+                    { min: 6, max: 32, message: '长度在 6 到 323 个字符', trigger: 'change' }
                 ],
                 verifyPassword: [
                     { required: true, message: '请确认新密码', trigger: 'blur' },
                     { required: true, validator: checkVerifyPassword, trigger: 'change' },
                 ],
                 captcha: {required: true, message: '验证码不能为空'},
-            }
+            },
+            //  邮箱修改
+            emailForm: {
+                password: '',
+                newEmail: '',
+                isExisted: false,
+                // 邮箱验证
+                emailText: '获取验证码',
+                getEmailDisabled: false,
+                getEmailType: "success",
+            },
+            emailRules: {
+                password: [
+                    { required: true, message: '请输入密码', trigger: 'blur' },
+                    { min: 6, max: 32, message: '长度在 6 到 323 个字符', trigger: 'change' }
+                ],
+                newEmail: [
+                    { required: true, validator:checkEmail, trigger: 'blur' }
+                ],
+                captcha: {required: true, message: '验证码不能为空'},
+            },
       };
     },
     methods: {
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-              this.$axios.put('user',this.userForm,{
+              this.$axios.put('user',{
+                    id: this.userForm.id,
+                    name: this.userForm.name,
+                    telephoneNumber: this.userForm.telephoneNumber,
+                    age: this.userForm.age,
+                    gender: this.userForm.gender,
+                    imageUrl: this.userForm.imageUrl,
+              },{
                   headers: {
                       'token': store.getToken()
                   },
@@ -215,7 +272,7 @@ export default {
                         store.setUserHeader(this.imageUrl)
                         this.$message.success('用户信息更新成功')
                     } else {
-                        this.$message.error('用户信息更新失败，请尝试刷新或重新登陆！！！')
+                        this.$message.error(e.data.message)
                     }
               })
           } else {
@@ -256,19 +313,28 @@ export default {
                   }
           })
       },
-     //   修改密码
-      changePassword() {
-          this.passwordVisible = true
+     //   修改邮箱密码
+      emailPassword() {
+          this.dialogVisible = true
       },
       getEmailCaptcha(name, form) {
           let validatePass = 0
-          this.$refs[name].validateField(['password','verifyPassword'], (err) => {
+          var validates = []
+          var email = ""
+          if(name == 'passwordForm') {
+              validates = ['password','verifyPassword']
+              email = this.userForm.email
+          } else {
+              validates = ['newEmail']
+              email = form.newEmail
+          }
+          this.$refs[name].validateField(validates, (err) => {
             if(!err) {
                 //  多个属性会依次校验
                 validatePass++
-                if(validatePass == 2) {
+                if(validatePass == validates.length) {
                     this.$axios.post('/email',{
-                        email: this.userForm.email,
+                        email: email,
                         isExisted: form.isExisted,
                     }).then((e)=>{
                         if (!e.data.success) {
@@ -295,28 +361,37 @@ export default {
             }
         })
       },
-      passwordCommit(formName) {
+      dialogCommit(formName, form) {
+        let param = {
+                    password: tools.encrypt(form.password),
+                    captcha: form.captcha,
+                    id: this.userForm.id,
+                }
+        if(formName == 'passwordForm') {
+            param.account = this.userForm.account
+        } else {
+            param.email = form.newEmail
+        }
          this.$refs[formName].validate((valid) => {
             if(valid) {
-                this.$axios.put('user',{
-                    password: tools.encrypt(this.passwordForm.password),
-                    isExisted: true,
-                    captcha: this.passwordForm.captcha,
-                    account: this.userForm.account,
-                    id: this.userForm.id,
-                },{
+                this.$axios.put('user',param,{
                     headers: {
                         'token': store.getToken()
                     },
                 }).then((e)=>{
                     if (e.data.success) {
-                        this.$message.success('修改密码成功')
-                        this.passwordVisible = false
-                        this.passwordForm.password = ''
-                        this.passwordForm.verifyPassword = ''
-                        this.passwordForm.captcha = ''
+                        this.$message.success('修改成功')
+                        form.password = ''
+                        form.captcha = ''
+                        if(formName == 'passwordForm') {
+                            form.verifyPassword = ''
+                        } else {
+                            this.userForm.email = form.newEmail
+                            form.newEmail = ''
+                        }
+                        this.dialogVisible = false
                     } else {
-                        this.$message.error('修改密码失败：'+e.data.message)
+                        this.$message.error('修改失败：'+e.data.message)
                     }
                 })
             }
