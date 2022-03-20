@@ -74,7 +74,7 @@ export default {
     name: "ArticleWrite",
     props: {
         id: {
-            require: false,
+            required: false,
             default: 0,
         },
     },

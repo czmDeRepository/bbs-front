@@ -1,5 +1,5 @@
 <template>
-    <message :kind="2" @messageConfirm="$emit('messageConfirm')"></message>
+    <message :kind="2"  :unReadCount="unReadCount" @messageConfirm="$emit('messageConfirm')"></message>
 </template>
 <script>
 import store from '@/services/store.js'
@@ -11,12 +11,16 @@ export default {
     },
     data() {
         return{
-            
+            unReadCount: 0,
         }
     },
     methods: {
     },
-    created() {
+    beforeMount() {
+        let message = store.getUnReadMessage()
+        if (message != null ) {
+            this.unReadCount = message.replyCount
+        }
     }
 }
 </script>

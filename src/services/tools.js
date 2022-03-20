@@ -90,23 +90,27 @@ export default{
     handleMessage(commentCount, replyCount) {
         console.log('默认消息处理', commentCount, replyCount)
     },
-    pullMessage(vue) {
+    pullMessage(vue, force) {
+        let that = this
+        function pull() {
+            vue.$axios.get("/message/statistics", {
+                headers: {
+                    'token': store.getToken()
+                }
+            }).then((e)=>{
+                if(e.data.success) {
+                    that.handleMessage(e.data.Data.commentCount, e.data.Data.replyCount)
+                } else {
+                    vue.$message.error(`获取消息失败: ${e.data.message}`)
+                }
+            })
+        }
+        // 强制刷新
+        if(force) {
+            return pull()
+        }
         if(this.messageInterval == null) {
             console.log('开始拉取消息')
-            let that = this
-            function pull() {
-                vue.$axios.get("/message/statistics", {
-                    headers: {
-                        'token': store.getToken()
-                    }
-                }).then((e)=>{
-                    if(e.data.success) {
-                        that.handleMessage(e.data.Data.commentCount, e.data.Data.replyCount)
-                    } else {
-                        vue.$message.error(`获取消息失败: ${e.data.message}`)
-                    }
-                })
-            }
             pull()
             this.messageInterval = setInterval(pull, 60 * 1000) // 一分钟一次
         }

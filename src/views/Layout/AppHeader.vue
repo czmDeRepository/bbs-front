@@ -161,7 +161,7 @@ export default {
               store.setUnReadMessage(that.message)
               that.$EventBus.$emit('messageRefresh')
           }
-          tools.pullMessage(this)
+          tools.pullMessage(this, false)
         }
     },
     created() {
@@ -183,6 +183,9 @@ export default {
           if (message != null ) {
               this.message = message
           } 
+      })
+      this.$EventBus.$on('forceMessageRefresh',()=>{
+          tools.pullMessage(this, true)
       })
     }
 }

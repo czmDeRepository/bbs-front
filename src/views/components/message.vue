@@ -1,7 +1,6 @@
 <template>
     <div>
-
-        <el-button size="mini" type="danger" style="float:right;" @click="confirm(-1)" :disabled="confirmsDisable">一键确认</el-button>
+        <el-button size="mini" type="danger" style="float:right;" @click="confirm(-1)" :disabled="confirmsDisable">一键已读</el-button>
     <div v-infinite-scroll="load" :infinite-scroll-disabled="disabled" style="padding:20px;">
         <el-row class="message" v-for="(message,index) in messageList" :key="index" style="padding:5px 0px;" >
             <el-col :span="1">
@@ -21,7 +20,8 @@
                 <span v-html="commentTool.analyzeEmoji(message.comment.content)">
                 </span>
                 <el-button size="mini" type="success" style="float:right;" @click="articleDetail(message.comment.articleId)"><em>详情</em></el-button>
-                <el-button v-if="message.type == 1" size="mini" type="primary" style="float:right;" @click="confirm(index)">确认</el-button>
+                <el-button v-if="message.type == 1" size="mini" type="primary" style="float:right;" @click="confirm(index)">已读</el-button>
+                <el-button v-else size="mini" type="danger" style="float:right;" @click="deleteMessage(index)">删除</el-button>
                 </el-card>
             </el-col>
         </el-row>
@@ -32,9 +32,9 @@
             <el-empty description="空空如也" ></el-empty>
         </div>
         <p  v-else-if="noMore" class="center">
-        <em>
-            <em>到底了！！！</em>
-        </em>
+            <em>
+                <em>到底了！！！</em>
+            </em>
         </p>
         <div class="articleDetail">
         <el-dialog
@@ -58,9 +58,15 @@ export default {
     props: {
         // 1 评论，2回复
         kind: {
-            require: true,
+            required: true,
             type: Number,
-        }
+        },
+        //  未读消息数，
+        unReadCount: {
+            type: Number,
+            required: true,
+        },
+
     },
     data() {
         return{
@@ -84,6 +90,8 @@ export default {
             // 跳转评论位置
             commentId: 0,
             confirmsDisable: false,
+            // 当前未读消息数
+            curUnReadCount: 0,
         }
     },
     methods: {
@@ -113,9 +121,17 @@ export default {
                     } else {
                         msgList[i].comment.userImageUrl = this.$axios.defaults.baseURL +  msgList[i].comment.userImageUrl
                     }
+                    if (msgList[i].type == 1) {
+                        this.curUnReadCount++
+                    }
                     this.messageList.push(msgList[i])
                 }
                 this.total = e.data.Data.total
+                // 未读消息数超过已读数量
+                if (this.curUnReadCount > this.unReadCount) {
+                    // 强制刷新消息统计
+                    this.$EventBus.$emit('forceMessageRefresh')
+                }
             } else {
                 this.$message.error(`获取消息失败: ${e.data.message}`)
             }
@@ -163,19 +179,41 @@ export default {
                     if(message != null) {
                         if(this.kind == 1) {
                             message.commentCount -= ids.length
+                            message.commentCount = message.commentCount > 0 ? message.commentCount : 0
                         } else {
                             message.replyCount -= ids.length
+                            message.replyCount = message.replyCount > 0 ? message.replyCount: 0
                         }
                         message.noMessage = message.commentCount + message.replyCount == 0
                     }
                     store.setUnReadMessage(message)
                     this.$emit('messageConfirm')
-                    this.confirmsDisable = true
                 } else {
                     this.$message.error('确认失败')
                 }
             })
-      }
+      },
+      // 删除消息
+      deleteMessage(index) {
+          this.$axios.delete(`/message/${this.messageList[index].id}`,
+            {
+                headers: {
+                    'token': store.getToken(),
+                }
+            }).then(
+                (e)=> {
+                    if(e.data.success) {
+                        this.messageList.splice(index, 1)
+                        this.$message.success('删除成功')
+                        if (this.messageList.length == 0) {
+                            this.total = 0
+                        }
+                    } else {
+                        this.$message.error('删除失败')
+                    }
+                }
+            )
+        }
     },
     created() {
     }
