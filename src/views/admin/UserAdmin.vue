@@ -236,7 +236,7 @@ export default {
                     this.$message.error('密码非空')
                     return
                 }
-                param.password =  this.password
+                param.password =  tools.encrypt(this.password)
             }
             this.$axios.put('/user', param, { headers: {'token': store.getToken(),}}
                 ).then((e)=>{
