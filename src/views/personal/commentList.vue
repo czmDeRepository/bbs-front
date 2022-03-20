@@ -138,10 +138,12 @@ export default {
                     commentId: -1,
                 }
             }).then((e)=> {
-                this.comment_list = e.data.Data.data
-                for(let i = 0; i < this.comment_list.length; i++) {
-                    //  前端页面展示
-                    this.comment_list[i].content_html = comment.analyzeEmoji(this.comment_list[i].content)
+                if(e.data.Data.data != null) {
+                    this.comment_list = e.data.Data.data
+                    for(let i = 0; i < this.comment_list.length; i++) {
+                        //  前端页面展示
+                        this.comment_list[i].content_html = comment.analyzeEmoji(this.comment_list[i].content)
+                    }
                 }
                 this.pageNum = e.data.Data.pageNum
                 this.total = e.data.Data.total
