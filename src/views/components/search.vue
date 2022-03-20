@@ -5,7 +5,7 @@
             <Forum @articleDetail="articleDetail"></Forum>
         </el-tab-pane>
         <el-tab-pane :lazy="true">
-            <span slot="label"><i class="el-icon-chat-dot-round"></i> 即时群聊</span>
+            <span slot="label"><i class="iconfont icon-jishitaolun"></i> 即时群聊</span>
             <Chat></Chat>
         </el-tab-pane>
     </el-tabs>
@@ -49,7 +49,7 @@ export default {
 }
 </script>
 <style scoped>
-.el-tabs {
+/* .el-tabs {
     min-height: calc(100vh - 162px);
-}
+} */
 </style>

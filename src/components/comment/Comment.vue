@@ -283,7 +283,7 @@
        commentWidth:{
        	type:String,
        	default:'80%',
-       }
+	   }
 
 	  },	
 	  data() {
@@ -411,7 +411,6 @@
 	          },
 	          doReply(index){
 				this.$set(this.replyMap,index,true)
-				console.log(this.replyMap[index]);
 			},
 			
   			pBodyStatus(index){

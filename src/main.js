@@ -73,6 +73,8 @@ Vue.prototype.colors = [
   'danger',
   'warning',
   ]
+// 全局事件
+Vue.prototype.$EventBus = new Vue()
 
 export const vue = new Vue({
   router,

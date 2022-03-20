@@ -2,24 +2,24 @@
     <div >
         <el-row :gutter="10">
             <el-col v-if="isAdmin" :span="3">
-                <el-select v-model="params.status"  placeholder="请选择论贴状态">
+                <el-select v-model="params.status"  placeholder="请选择论贴状态" size="medium">
                     <el-option label="已发布" value="2"></el-option>
                     <el-option label="已删除" value="-1"></el-option>
                 </el-select>
             </el-col>
             <el-col v-else-if="userId != '0' && !followingFlag" :span="3">
-                <el-select v-model="params.status"  placeholder="请选择论贴状态">
+                <el-select v-model="params.status"  placeholder="请选择论贴状态" size="medium">
                     <el-option label="未发布" value="1"></el-option>
                     <el-option label="已发布" value="2"></el-option>
                 </el-select>
             </el-col>
             <el-col :span="3">
-                <el-select v-model="params.selectLabel" :multiple="true" collapse-tags filterable  placeholder="请选择标签" >
+                <el-select v-model="params.selectLabel" :multiple="true" collapse-tags filterable  placeholder="请选择标签" size="medium">
                     <el-option v-for="item in labelList" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
             </el-col>
             <el-col :span="3">
-                <el-select v-model="params.selectCategory" :clearable="true" filterable  placeholder="请选择分类">
+                <el-select v-model="params.selectCategory" :clearable="true" filterable  placeholder="请选择分类" size="medium">
                 <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
             </el-col>
@@ -31,12 +31,13 @@
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
                         :default-time="['00:00:00', '23:59:59']"
+                        size="medium"
                         >
                     </el-date-picker>
             </el-col>
             <el-col  :span="isAdmin || userId != '0' && !followingFlag ? 7 : 10">
                 <div class="filter">
-                <el-input v-model="params.title" placeholder="请输入论贴标题" class="input-with-select">
+                <el-input v-model="params.title" placeholder="请输入论贴标题" class="input-with-select" size="medium">
                     <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
                 </el-input>
                 </div>

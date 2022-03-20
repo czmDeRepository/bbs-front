@@ -7,7 +7,7 @@
             <b class="headerTitle">
               在线论坛平台
             </b>
-            <i class="el-icon-chat-dot-round" style="font-size: 2.5rem;">
+            <i class="iconfont icon-taolunqu" style="font-size: 2.5rem;">
             </i>
           </a>
         </em>
@@ -15,13 +15,15 @@
       <el-col :span="1"> 
         <!---->
         <el-tooltip content="发布贴子" placement="left-end" effect="dark">
-         <el-button type="info" icon="el-icon-edit" circle @click="writeArticle"></el-button>
+         <el-button type="info" icon="el-icon-edit" size="medium" circle @click="writeArticle"></el-button>
         </el-tooltip>
       </el-col>
       <el-col :span="1">
         <el-dropdown @command="handleCommand">
           <div class="demo-basic--circle">
-              <el-avatar size="large" :src="circleUrl" @error="errorHandler"></el-avatar>
+            <el-badge  is-dot :hidden="message.noMessage">
+              <el-avatar size="medium" :src="circleUrl" @error="errorHandler"></el-avatar>
+            </el-badge>
           </div>
           <el-dropdown-menu v-if="store.getUserId() == null" slot="dropdown">
               <el-dropdown-item command="login">
@@ -34,11 +36,20 @@
                 <i class="el-icon-user"></i>
                 个人中心
               </el-dropdown-item>
+              <el-dropdown-item divided command="message" v-if="!$route.path.startsWith('/message')">
+                <el-badge :value="messageCount" :max="99" :hidden="message.noMessage">
+                  <i class="iconfont icon-xiaoxi1"></i>
+                 消息
+                </el-badge>
+              </el-dropdown-item>
               <el-dropdown-item v-if="store.getUserRole() > 1 && !$route.path.startsWith('/admin')" divided command="admin">
                 <i class="iconfont icon-yunyingguanli"></i>
                 管理平台
               </el-dropdown-item>
-              <el-dropdown-item v-else-if="$route.path.startsWith('/admin')" divided command="">首页</el-dropdown-item>
+              <el-dropdown-item v-if="!$route.path.startsWith('/main')" divided command="">
+                <i class="iconfont icon-zhuye"></i>
+                首页
+              </el-dropdown-item>
               <el-dropdown-item divided command="exit">
                 <i class="iconfont icon-tuichu1"></i>
                 退出
@@ -70,7 +81,18 @@ export default {
           store,
           circleUrl: require('@/static/defaultHeader.png'),
           dialogVisible: false,
+          message: {
+            noMessage: true,
+            commentCount: 0,
+            replyCount: 0,
+          },
+          count : 0,
        }
+    },
+    computed: {
+      messageCount: function() {
+        return this.message.commentCount + this.message.replyCount
+      },
     },
     methods: {
         handleCommand(command) {
@@ -114,6 +136,7 @@ export default {
               this.circleUrl = this.$axios.defaults.baseURL + store.getUserHeader()
             }
             tools.refreshToken(this)
+            this.getMessage()
         },
         // 编写论贴
         writeArticle() {
@@ -123,14 +146,45 @@ export default {
             }
             this.$router.push('/article/write')
         },
+        getMessage() {
+          let that = this
+          tools.handleMessage = function(commentCount, replyCount) {
+              console.log('消息触发', commentCount, replyCount)
+              that.message.commentCount = commentCount
+              that.message.replyCount = replyCount
+              //  有未读消息
+              if(commentCount + replyCount > 0) {
+                  that.message.noMessage = false
+              } else {
+                  that.message.noMessage = true
+              }
+              store.setUnReadMessage(that.message)
+              that.$EventBus.$emit('messageRefresh')
+          }
+          tools.pullMessage(this)
+        }
     },
     created() {
         if (store.getUserHeader() != null && store.getUserHeader() != 'undefined' && store.getUserHeader() != '') {
             this.circleUrl = this.$axios.defaults.baseURL + store.getUserHeader()
         }
-        tools.refreshToken(this)
+        if(store.getUserId() != null) {
+          tools.refreshToken(this)
+          let message =  store.getUnReadMessage()
+          if(message != null) {
+            this.message = message
+          }
+          this.getMessage()
+        }
     },
-    
+    mounted() {
+      this.$EventBus.$on('messageConfirm',()=>{
+          let message = store.getUnReadMessage()
+          if (message != null ) {
+              this.message = message
+          } 
+      })
+    }
 }
 </script>
 

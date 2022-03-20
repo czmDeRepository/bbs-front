@@ -2,26 +2,26 @@
     <div class="userContent">
         <el-row class="firter">
             <el-col :span="3">
-                <el-select v-model="status"  placeholder="用户状态" :clearable="true">
+                <el-select v-model="status"  placeholder="用户状态" :clearable="true" size="medium">
                     <el-option label="正常" value="1" ></el-option>
                     <el-option label="已注销" value="2"></el-option>
                     <el-option label="黑名单" value="3"></el-option>
                 </el-select>
             </el-col>
             <el-col :span="2">
-                <el-select v-model="gender"  placeholder="性别" :clearable="true">
+                <el-select v-model="gender"  placeholder="性别" :clearable="true" size="medium">
                     <el-option label="男" value="男" ></el-option>
                     <el-option label="女" value="女"></el-option>
                 </el-select>
             </el-col>
             <el-col :span="2">
-                <el-select v-model="role"  placeholder="角色" :clearable="true">
+                <el-select v-model="role"  placeholder="角色" :clearable="true" size="medium">
                     <el-option label="普通用户" value="1" ></el-option>
                     <el-option label="管理员" value="2"></el-option>
                 </el-select>
             </el-col>
             <el-col :span="6">
-                <el-input v-model="name" placeholder="请输入用户名" class="input-with-select">
+                <el-input v-model="name" placeholder="请输入用户名" class="input-with-select" size="medium">
                     <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
                 </el-input>
             </el-col>

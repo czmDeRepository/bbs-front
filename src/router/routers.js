@@ -13,6 +13,9 @@ import CategoryAdmin from '@/views/admin/CategoryAdmin.vue'
 import LabelAdmin from '@/views/admin/LabelAdmin.vue'
 import ArticleAdmin from '@/views/admin/ArticleAdmin.vue'
 import UserAdmin from '@/views/admin/UserAdmin.vue'
+import Message from '@/views/message/index.vue'
+import MessageComment from '@/views/message/comment.vue'
+import MessageReplyComment from '@/views/message/replyComment.vue'
 
 Vue.use(Router)
 
@@ -81,6 +84,16 @@ const router = new Router({
                 {path: 'user', name: 'userAdmin', component: UserAdmin},
                 {path: 'label', name: 'labelAdmin', component: LabelAdmin},
                 {path: 'article', name: 'articleAdmin', component: ArticleAdmin},
+            ]
+        },
+        {
+            path: '/message',
+            name: 'message',
+            component: Message,
+            redirect: '/message/comment',
+            children: [
+                {path: 'comment', name: 'messageComment', component: MessageComment},
+                {path: 'reply_comment', name: 'messageReplyComment', component: MessageReplyComment},
             ]
         }
     ]

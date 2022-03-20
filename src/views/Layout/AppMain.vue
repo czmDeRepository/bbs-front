@@ -16,6 +16,7 @@
                             <el-tooltip class="item" effect="dark" content="最近浏览的至多10篇论贴" placement="top">
                                 <em><i class="el-icon-time"></i><b>最近浏览</b></em>
                             </el-tooltip>
+                            <el-button style="float: right; padding: 3px 0" type="text" @click="clearRecentBrowsing">清空</el-button>
                         </div>
                         <div v-for="(item,index) in RecentBrowsing" :key="index" class="recent_browsing">
                             <el-link type="primary" @click="readArticle(item)"><em>{{index+1}}: {{item.title}}</em></el-link>
@@ -104,12 +105,16 @@ export default {
             if(len > 10) {
                 this.RecentBrowsing.pop()   
             }
-            store.set("RecentBrowsing", JSON.stringify(this.RecentBrowsing))
+            store.setRecentBrowsing(this.RecentBrowsing)
+        },
+        clearRecentBrowsing() {
+            store.clearRecentBrowsing()
+            this.RecentBrowsing = []
         }
     },
     created() {
         this.refreshInformation()
-        this.RecentBrowsing = JSON.parse(store.get("RecentBrowsing"))
+        this.RecentBrowsing = store.getRecentBrowsing()
         // 防止无数据空异常
         if(this.RecentBrowsing == null) {
             this.RecentBrowsing = []

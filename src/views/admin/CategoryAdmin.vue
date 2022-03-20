@@ -120,7 +120,6 @@ export default {
                     orderIndex: this.orderIndex
                 }
             }).then((e)=>{
-                console.log(e.data)
                 if(e.data.success) {
                     let page = e.data.Data
                     if (page.data != null) {

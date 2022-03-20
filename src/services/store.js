@@ -1,6 +1,8 @@
 export default{
     clear() {
+        let recentBrowsing = this.getRecentBrowsing()
         localStorage.clear()
+        this.setRecentBrowsing(recentBrowsing)
     },
     set(key, value) {
         localStorage.setItem(key, value)
@@ -41,5 +43,25 @@ export default{
     },
     clearArticleParams() {
         localStorage.removeItem('artilceListParams')
-    }
+    },
+    // 最近浏览
+    setRecentBrowsing(params) {
+        this.set("RecentBrowsing", JSON.stringify(params))
+    },
+    getRecentBrowsing() {
+        return JSON.parse(this.get("RecentBrowsing"))
+    },
+    clearRecentBrowsing() {
+        localStorage.removeItem("RecentBrowsing")
+    },
+    // 消息
+    setUnReadMessage(params) {
+        this.set("unReadMessage", JSON.stringify(params))
+    },
+    getUnReadMessage() {
+        return JSON.parse(this.get("unReadMessage"))
+    },
+    clearUnReadMessage() {
+        localStorage.removeItem('unReadMessage')
+    },
 }
