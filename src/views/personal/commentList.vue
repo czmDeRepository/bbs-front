@@ -135,6 +135,7 @@ export default {
                     pageNum: this.pageNum,
                     pageSize: this.pageSize,
                     desc: this.desc,
+                    commentId: -1,
                 }
             }).then((e)=> {
                 this.comment_list = e.data.Data.data

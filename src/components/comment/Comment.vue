@@ -730,11 +730,13 @@
 		color: grey;
 	}
 	.reply-content{
-		word-wrap : break-word ;
 		width: 90%;
 		font-size: 15px;
 		line-height: 25px;
 		margin-left: 56px;
+		overflow-wrap: break-word;
+		white-space: pre-wrap;
+		word-break: break-all;
 	}
 
 	.reply-fa{

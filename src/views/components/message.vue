@@ -17,10 +17,10 @@
                     {{message.createTime}}
                 </em>
                 <el-card class="box-card"  shadow="hover" :body-style="{padding: '15px'}" style="margin-bottom: 10px;">
-                <span v-html="commentTool.analyzeEmoji(message.comment.content)">
+                <span class="content" v-html="commentTool.analyzeEmoji(message.comment.content)">
                 </span>
-                <el-button size="mini" type="success" style="float:right;" @click="articleDetail(message.comment.articleId)"><em>详情</em></el-button>
-                <el-button v-if="message.type == 1" size="mini" type="primary" style="float:right;" @click="confirm(index)">已读</el-button>
+                <el-button size="mini" type="primary" style="float:right;" @click="articleDetail(message.comment.articleId)"><em>详情</em></el-button>
+                <el-button v-if="message.type == 1" size="mini" type="success" style="float:right;" @click="confirm(index)">已读</el-button>
                 <el-button v-else size="mini" type="danger" style="float:right;" @click="deleteMessage(index)">删除</el-button>
                 </el-card>
             </el-col>
@@ -225,5 +225,10 @@ export default {
 }
 .message .time {
     color:#aaa;
+}
+.message .content {
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    word-break: break-all;
 }
 </style>
