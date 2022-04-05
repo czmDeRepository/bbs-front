@@ -463,6 +463,8 @@ export default {
                 yAxis: [
                     {
                         type: 'value',
+                        // 最小间隔大小，保证整数单位
+                        minInterval: 1,
                         // axisPointer: {
                         //     show: true,
                         // }

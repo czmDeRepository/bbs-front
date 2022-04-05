@@ -224,7 +224,7 @@ export default {
             passwordRules: {
                 password: [
                     { required: true, message: '请输入新密码', trigger: 'blur' },
-                    { min: 6, max: 32, message: '长度在 6 到 323 个字符', trigger: 'change' }
+                    { min: 6, max: 32, message: '长度在 6 到 32 个字符', trigger: 'change' }
                 ],
                 verifyPassword: [
                     { required: true, message: '请确认新密码', trigger: 'blur' },
@@ -245,7 +245,7 @@ export default {
             emailRules: {
                 password: [
                     { required: true, message: '请输入密码', trigger: 'blur' },
-                    { min: 6, max: 32, message: '长度在 6 到 323 个字符', trigger: 'change' }
+                    { min: 6, max: 32, message: '长度在 6 到 32 个字符', trigger: 'change' }
                 ],
                 newEmail: [
                     { required: true, validator:checkEmail, trigger: 'blur' }
