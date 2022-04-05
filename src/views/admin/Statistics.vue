@@ -366,20 +366,22 @@ export default {
                 yAxis: [
                     {
                         type: 'value',
-                        name: '日活量',
+                        // name: '日活量',
                         position: 'left',
+                        // 最小间隔大小，保证整数单位
+                        minInterval: 1,
                         axisLabel: {
                             formatter: '{value} 人'
                         }
                     },
-                    {
-                        type: 'value',
-                        name: '新增用户量',
-                        position: 'right',
-                        axisLabel: {
-                            formatter: '{value} 人'
-                        }
-                    }
+                    // {
+                    //     type: 'value',
+                    //     name: '新增用户量',
+                    //     position: 'right',
+                    //     axisLabel: {
+                    //         formatter: '{value} 人'
+                    //     }
+                    // }
                 ],
                 series: [
                     {
@@ -395,7 +397,7 @@ export default {
                         type: 'line',
                         // 平滑曲线
                         // smooth: true,
-                        yAxisIndex: 1,
+                        // yAxisIndex: 1,
                         label: {
                             show: true,
                             position: 'left',
