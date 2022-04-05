@@ -18,8 +18,15 @@
                     <el-form-item label="手机号" prop="telephoneNumber">
                         <el-input v-model="userForm.telephoneNumber"></el-input>
                     </el-form-item>
-                    <el-form-item label="年龄" prop="age">
-                        <el-input v-model="userForm.age" autocomplete="off"></el-input>
+                    <el-form-item label="出生日期" prop="birthday">
+                        <div class="block">
+                            <el-date-picker
+                            v-model="userForm.birthday"
+                            type="datetime"
+                            placeholder="选择日期">
+                            </el-date-picker>
+                        </div>
+                        <!-- <el-input v-model="userForm.age" autocomplete="off"></el-input> -->
                     </el-form-item>
                     <el-form-item label="性别" prop="region">
                         <el-radio-group v-model="userForm.gender">
@@ -140,21 +147,14 @@ import tools from '@/services/tools.js'
 export default {
     name: 'information',
     data() {
-        var checkAge = (rule, value, callback) => {
-            if (!value) {
-                return callback(new Error('年龄不能为空'));
+        var checkBirthday = (rule, value, callback) => {
+            if(value == null) {
+                return callback(new Error('请输入生日日期'))
             }
-            setTimeout(() => {
-            if (!Number.isInteger(1 * value)) {
-                callback(new Error('请输入整数数值'));
-            } else {
-                if (value < 1 || value >130) {
-                callback(new Error('请输入合理年龄1~130'));
-                } else {
-                callback();
-                }
+            if(value >= new Date()) {
+                return callback(new Error('请输入合法日期'))
             }
-            }, 1000);
+            callback()
         }
         var checkEmail = (rule, value, callback) => {
             const mailReg =/[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/
@@ -190,7 +190,7 @@ export default {
                 account: '',
                 email: '',
                 telephoneNumber: '',
-                age: '',
+                birthday: null,
                 gender: '男',
                 imageUrl: '',
             },
@@ -199,14 +199,11 @@ export default {
                     { required: true, message: '请输入用户名', trigger: 'blur' },
                     { min: 3, max: 12, message: '长度在 3 到 12 个字符', trigger: 'change' }
                 ],
-                // email: [
-                //     { required: true, validator:checkEmail, trigger: 'blur' }
-                // ],
                 telephoneNumber: [
                     {  required: false, validator: checkPhone, trigger: 'blur' }
                 ],
-                age: [
-                    { required: true, validator: checkAge, trigger: 'change' }
+                birthday: [
+                    { required: true, validator: checkBirthday, trigger: 'change' }
                 ],
             },
             // 头像
@@ -265,7 +262,7 @@ export default {
                     id: this.userForm.id,
                     name: this.userForm.name,
                     telephoneNumber: this.userForm.telephoneNumber,
-                    age: this.userForm.age,
+                    birthday: tools.dateFormat(this.userForm.birthday),
                     gender: this.userForm.gender,
                     imageUrl: this.userForm.imageUrl,
               },{
@@ -286,12 +283,11 @@ export default {
         });
       },
       beforeAvatarUpload(file) {
-          console.log(file.type)
         const isJPG = file.type === 'image/png' || file.type === 'image/jpeg';
-        const isLt5M = file.size / 1024 / 1024 < 5;
         if (!isJPG) {
-          this.$message.error('上传头像图片只能是 jpg/png 格式!');
+            this.$message.error('上传头像图片只能是 jpg/png 格式!');
         }
+        const isLt5M = file.size / 1024 / 1024 < 5;
         if (!isLt5M) {
           this.$message.error('上传头像图片大小不能超过 5MB!');
         }
@@ -421,7 +417,9 @@ export default {
                 this.userForm.name = user.name
                 this.userForm.email = user.email
                 this.userForm.telephoneNumber = user.telephoneNumber
-                this.userForm.age = user.age
+                if(user.birthday != "") {
+                    this.userForm.birthday = new Date(user.birthday)
+                }
                 this.userForm.gender = user.gender
                 this.userForm.imageUrl = user.imageUrl
                 this.imageUrl = user.imageUrl

@@ -26,6 +26,10 @@
                     <i class="iconfont icon-yonghuguanli"></i>
                     <span slot="title">用户管理</span>
                 </el-menu-item>
+                <el-menu-item index="5">
+                    <i class="iconfont icon-tongji"></i>
+                    <span slot="title">监控大盘</span>
+                </el-menu-item>
                 </el-menu>
             </el-aside>
             <el-main>
@@ -72,10 +76,19 @@ export default {
                 break
             case '4':
                 this.$router.push('user')
+                break
+            case '5':
+                this.$router.push('statistics')
+                break
             }
         }
     },
     created() {
+        // 未登录或普通用户无法访问
+        if(store.getToken() == null || store.getUserRole() == 1) {
+            this.$router.push('/')
+            return
+        }
         let url = this.$route.path
         let start = url.lastIndexOf('/')
         if (start == url.length - 1) {
@@ -83,7 +96,6 @@ export default {
             start = url.lastIndexOf('/')
         }
         let selected = url.substring(start + 1)
-        console.log(selected)
         switch(selected) {
         case 'category':
             this.index = '1'
@@ -96,6 +108,10 @@ export default {
             break
         case 'user':
             this.index = '4'
+            break
+        case 'statistics':
+            this.index = '5'
+            break
         }
     }
 };

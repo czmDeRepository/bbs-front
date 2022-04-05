@@ -3,6 +3,9 @@ import store from './store.js'
 import { JSEncrypt } from 'jsencrypt'
 export default{
     dateFormat(date) {
+        if(date == null) {
+            return null
+        }
         let fmt = "yyyy-MM-dd hh:mm:ss"
         var o = {
             "M+": date.getMonth() + 1, //月份   
@@ -34,7 +37,7 @@ export default{
                 message: '登陆状态已失效，请重新登陆',
                 type: 'error',
                 duration: 0,
-                onClose: ()=>vue.$router.go(0),
+                onClose: ()=>vue.$router.push('/'),
             })
             return true
         }
@@ -65,12 +68,12 @@ export default{
                                 duration: 0,
                                 onClose: ()=>{
                                     store.clear()
-                                    vue.$router.go(0)
+                                    vue.$router.push('/')
                                 },
                             })
                         }
                     })
-                }, 60 * 60 * 1000)     // 1小时刷新一次
+                }, 5 * 60 * 60 * 1000)     // 5小时刷新一次
             }
         }
     },
@@ -112,7 +115,7 @@ export default{
         if(this.messageInterval == null) {
             console.log('开始拉取消息')
             pull()
-            this.messageInterval = setInterval(pull, 60 * 1000) // 一分钟一次
+            this.messageInterval = setInterval(pull, 5 * 60 * 1000 + 3000) // 5.3分钟一次
         }
     },
     stopPullMessage() {

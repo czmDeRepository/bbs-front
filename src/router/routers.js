@@ -13,6 +13,7 @@ import CategoryAdmin from '@/views/admin/CategoryAdmin.vue'
 import LabelAdmin from '@/views/admin/LabelAdmin.vue'
 import ArticleAdmin from '@/views/admin/ArticleAdmin.vue'
 import UserAdmin from '@/views/admin/UserAdmin.vue'
+import Statistics from '@/views/admin/Statistics.vue'
 import Message from '@/views/message/index.vue'
 import MessageComment from '@/views/message/comment.vue'
 import MessageReplyComment from '@/views/message/replyComment.vue'
@@ -84,6 +85,7 @@ const router = new Router({
                 {path: 'user', name: 'userAdmin', component: UserAdmin},
                 {path: 'label', name: 'labelAdmin', component: LabelAdmin},
                 {path: 'article', name: 'articleAdmin', component: ArticleAdmin},
+                {path: 'statistics', name: 'statistics', component: Statistics},
             ]
         },
         {

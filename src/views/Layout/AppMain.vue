@@ -36,8 +36,8 @@
                             </em>
                         </div>
                         <div class="content-list">
-                            <em><b><i class="el-icon-s-custom"></i>用户量：</b>
-                            <span class="value">{{information.totalUserNum}}</span>
+                            <em><b><i class="el-icon-s-custom"></i>日活量：</b>
+                            <span class="value">{{information.activeVisitorNum}}</span>
                             </em>
                         </div>
                         <div class="content-list">
@@ -73,7 +73,7 @@ export default {
             totalArticleNum: 9999,
             totalChatPersonNum: 9999,
             totalReadNum: 9999,
-            totalUserNum: 9999,
+            activeVisitorNum: 9999,
         },
         RecentBrowsing: [],
 
