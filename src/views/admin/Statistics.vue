@@ -27,6 +27,17 @@
             </el-col>
             <el-col :span="16" >
                 <el-card shadow="hover" :body-style="{ padding: '20px 20px 0px 20px' }">
+                    <el-tooltip content="统计天数" placement="left" effect="dark">
+                        <el-select v-model="userDays" placeholder="请选择统计天数" size="mini" 
+                        @change="daysChange('user')" style="float:right;width:90px;z-index:1;">
+                            <el-option
+                                v-for="item in days"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-tooltip>
                     <div id="activeUser" style="height: 350px;"></div>
                 </el-card>
             </el-col>
@@ -37,6 +48,17 @@
             <b><em>论贴大盘</em></b>
             </template>
             <el-card shadow="hover" :body-style="{ padding: '20px 20px 0px 20px' }">
+                <el-tooltip content="统计天数" placement="left" effect="dark">
+                        <el-select v-model="articleDays" placeholder="请选择统计天数" size="mini" 
+                        @change="daysChange('article')" style="float:right;width:90px;z-index:1;">
+                            <el-option
+                                v-for="item in days"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-tooltip>
                 <div id="articleStatistic" ref="articleStatistic" style="height: 400px;"></div>
             </el-card>
         </el-collapse-item>
@@ -198,7 +220,11 @@ export default {
                         "value": 0
                     }
                 ]
-            }
+            },
+            // 统计时间筛选
+            days: [{label:"5天",value:5}, {label:"7天",value:7},{label:"10天",value:10},{label:"14天",value:14},{label:"20天",value:20},{label:"30天",value:30}],
+            userDays: 7,
+            articleDays: 7,
         }
     },
     methods: {
@@ -346,7 +372,7 @@ export default {
             let activeUser = this.$echarts.init(html)
             let activeUserOption = {
                 title: {
-                    text: '近7天用户统计',
+                    text: '用户统计',
                     x:'auto',
                     top: 'auto'
                 },
@@ -443,7 +469,7 @@ export default {
             }
             let option = {
                 title: {
-                    text: '近7天论贴统计',
+                    text: '论贴统计',
                     x:'auto',
                     top: 'auto'
                 },
@@ -572,6 +598,9 @@ export default {
         },
         getMonitor() {
             this.$axios.get('/monitor', {
+                params: {
+                    days: 7,
+                },
                 headers: {
                     'token': store.getToken()
                 }
@@ -591,12 +620,47 @@ export default {
                     if (e.data.success) {
                     this.dispose()
                     this.monitor = e.data.Data
+                    this.userDays = 7
+                    this.articleDays = 7
                     this.initUser()
                     this.initArticle()
                 } else {
                     this.$message.error('get monitor fail: '+e.data.message)
                 }
             })
+        },
+        daysChange(monitorType) {
+            let days = this.userDays, id = 'activeUser'
+            if(monitorType == 'article') {
+                days = this.articleDays
+                id = 'articleStatistic'
+            }
+            this.$axios.get(`/monitor/${monitorType}`, {
+                params: {
+                    days: days,
+                },
+                headers: {
+                    'token': store.getToken()
+                }
+                }).then((e)=>{
+                    if (e.data.success) {
+                        let charts = this.$echarts.getInstanceByDom(document.getElementById(id))
+                        if(undefined != charts) {
+                            charts.dispose()
+                        }
+                        if(monitorType == 'article') {
+                            this.monitor.articleIncreaseNum = e.data.Data.articleIncreaseNum
+                            this.monitor.commentIncreaseNum = e.data.Data.commentIncreaseNum
+                            this.initArticle()
+                        } else {
+                            this.monitor.userIncreaseNum = e.data.Data.userIncreaseNum
+                            this.monitor.activeVisitorNum = e.data.Data.activeVisitorNum
+                            this.initActiveUser()
+                        }
+                    } else {
+                        this.$message.error('get monitor fail: '+e.data.message)
+                    }
+                })
         }
     },
     mounted() {
