@@ -57,7 +57,7 @@
                         </el-table-column>
                         <el-table-column prop="title" label="论贴标题">
                             <template slot-scope="scope">
-                               <el-button type="primary" plain @click="artilceDetial(scope.row)">{{scope.row.title}}</el-button>
+                               <el-button type="primary" plain @click="artilceDetial(scope.row)" size="medium">{{scope.row.title}}</el-button>
                             </template>
                         </el-table-column>
                         <el-table-column prop="readCount" label="阅读数量" width="100" sortable="custom" :sort-orders="['ascending', 'descending']">
