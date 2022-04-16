@@ -31,7 +31,7 @@
                                         </el-input>
                                     </el-col>
                                     <el-col :span="8">
-                                        <el-image style="height:40px; cursor:pointer;" :src="captchaBase64" @click="getCaptcha(loginForm.captchaKey)">
+                                        <el-image style="width:100%;height:40px; cursor:pointer;" :src="captchaBase64" @click="getCaptcha(loginForm.captchaKey)">
                                             <div slot="error" class="image-slot">
                                                 <i class="el-icon-picture-outline"></i>
                                             </div>
