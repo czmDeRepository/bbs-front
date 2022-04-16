@@ -22,7 +22,7 @@
                 </el-table-column>
                 <el-table-column label="操作">
                     <template slot-scope="scope">
-                        <el-button type="primary" plain @click="modify(scope.$index)" size="small">修改</el-button>
+                        <el-button type="warning" plain @click="modify(scope.$index)" size="small">修改</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -49,7 +49,7 @@
                  <template slot="prepend">标签名</template>
             </el-input>
             <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="commit" size="medium">确 定</el-button>
+                <el-button type="primary" @click="commit" plain size="medium">确 定</el-button>
             </span>
         </el-dialog>
     </div>
