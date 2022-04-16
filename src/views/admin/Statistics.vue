@@ -88,7 +88,36 @@
           <div
             id="articleStatistic"
             ref="articleStatistic"
-            style="width: 100%; height: 400px;"
+            style="height: 400px;"
+          ></div>
+        </el-card>
+      </el-collapse-item>
+      <el-collapse-item name="chat">
+        <template slot="title">
+          <b><em>群聊大盘</em></b>
+        </template>
+        <el-card shadow="hover" :body-style="{ padding: '20px 20px 0px 20px' }">
+          <el-tooltip content="统计天数" placement="left" effect="dark">
+            <el-select
+              v-model="chatDays"
+              placeholder="请选择统计天数"
+              size="mini"
+              @change="daysChange('chat')"
+              style="float:right;width:90px;z-index:1;"
+            >
+              <el-option
+                v-for="item in days"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </el-tooltip>
+          <div
+            id="chatStatistic"
+            ref="chatStatistic"
+            style="height: 400px;"
           ></div>
         </el-card>
       </el-collapse-item>
@@ -250,6 +279,66 @@ export default {
             value: 0,
           },
         ],
+        chatMaxOnlineNum: [
+            {
+            name: "2022-3-28",
+            value: 11,
+          },
+          {
+            name: "2022-3-29",
+            value: 0,
+          },
+          {
+            name: "2022-3-30",
+            value: 234,
+          },
+          {
+            name: "2022-3-31",
+            value: 12,
+          },
+          {
+            name: "2022-4-1",
+            value: 12,
+          },
+          {
+            name: "2022-4-2",
+            value: 11,
+          },
+          {
+            name: "2022-4-3",
+            value: 14,
+          },
+        ],
+        chatMessageNum: [
+            {
+            name: "2022-3-28",
+            value: 11,
+          },
+          {
+            name: "2022-3-29",
+            value: 0,
+          },
+          {
+            name: "2022-3-30",
+            value: 12312324,
+          },
+          {
+            name: "2022-3-31",
+            value: 2134,
+          },
+          {
+            name: "2022-4-1",
+            value: 234,
+          },
+          {
+            name: "2022-4-2",
+            value: 123445,
+          },
+          {
+            name: "2022-4-3",
+            value: 3554,
+          },
+        ],
       },
       // 统计时间筛选
       days: [
@@ -262,20 +351,27 @@ export default {
       ],
       userDays: 7,
       articleDays: 7,
+      chatDays: 7,
     };
   },
   methods: {
     handleChange(arr) {
-      for (let i = 0, len = arr.length; i < len; i++) {
         // 动画 效果还未结束，可能获取不到宽高  
         setTimeout(() => {
-            if (arr[i] == "user") {
-            this.initUser();
-            } else {
-                this.initArticle();
+            for (let i = 0, len = arr.length; i < len; i++) {
+                switch(arr[i]) {
+                    case "user":
+                        this.initUser();
+                        break
+                    case "article":
+                        this.initArticle();
+                        break
+                    case "chat":
+                        this.initChat();
+                        break   
+                }
             }
-        }, 250);
-      }
+        }, 250)
     },
     handleChangeUserType(val) {
       if (val == "1") {
@@ -494,6 +590,73 @@ export default {
       };
       activeUser.setOption(activeUserOption);
     },
+    initChat() {
+      let html = document.getElementById("chatStatistic");
+      if (undefined != this.$echarts.getInstanceByDom(html)) {
+        return;
+      }
+      let date = new Array();
+      let chatMaxOnlineNumValue = new Array();
+      let chatMessageNumValue = new Array();
+      for (
+        let i = 0, len = this.monitor.chatMaxOnlineNum.length;
+        i < len;
+        i++
+      ) {
+        date.push(this.monitor.chatMaxOnlineNum[i].name);
+        chatMaxOnlineNumValue.push(this.monitor.chatMaxOnlineNum[i].value);
+        chatMessageNumValue.push(this.monitor.chatMessageNum[i].value);
+      }
+
+      let chat = this.$echarts.init(html);
+      let chatOption = {
+        title: {
+          text: "群聊统计",
+          x: "auto",
+          top: "auto",
+        },
+        tooltip: {
+          trigger: "axis",
+          xAxis: Number,
+          yAxis: Number,
+        },
+        legend: {},
+        xAxis: {
+          type: "category",
+          axisTick: {
+            alignWithLabel: true,
+          },
+          data: date,
+        },
+        yAxis: [
+          {
+            type: "value",
+            position: "left",
+            minInterval: 1,
+            axisLabel: {
+              formatter: "{value}",
+            },
+          }
+        ],
+        series: [
+          {
+            name: "群聊日活量",
+            type: "bar",
+            yAxisIndex: 0,
+            data: chatMaxOnlineNumValue,
+            barWidth: "20%",
+          },
+          {
+            name: "群聊消息量",
+            data: chatMessageNumValue,
+            type: "bar",
+            yAxisIndex: 0,
+            barWidth: "20%",
+          },
+        ],
+      };
+      chat.setOption(chatOption);
+    },
     initArticle() {
       let html = document.getElementById("articleStatistic");
       if(undefined != this.$echarts.getInstanceByDom(html)) {
@@ -648,6 +811,12 @@ export default {
       if (undefined != charts) {
         charts.dispose();
       }
+      charts = this.$echarts.getInstanceByDom(
+        document.getElementById("chatStatistic")
+      );
+      if (undefined != charts) {
+        charts.dispose();
+      }
     },
     getMonitor() {
       this.$axios
@@ -669,29 +838,39 @@ export default {
         });
     },
     forceRefresh() {
-      this.activeNames = ["user", "article"];
+      this.activeNames = ["user"];
       this.$axios
         .put("/monitor", null, { headers: { token: store.getToken() } })
         .then((e) => {
           if (e.data.success) {
             this.dispose();
             this.monitor = e.data.Data;
-            this.userDays = 7;
-            this.articleDays = 7;
+            this.userDays = this.articleDays = this.chatDays = 7
             this.initUser();
-            this.initArticle();
           } else {
             this.$message.error("get monitor fail: " + e.data.message);
           }
         });
     },
     daysChange(monitorType) {
-      let days = this.userDays,
-        id = "activeUser";
-      if (monitorType == "article") {
-        days = this.articleDays;
-        id = "articleStatistic";
-      }
+      let days = 0, id = "";
+      switch (monitorType) {
+        case "article":
+            days = this.articleDays;
+            id = "articleStatistic";
+            break
+        case "user":
+            days = this.userDays
+            id = "activeUser"
+            break
+        case "chat":
+            days = this.chatDays
+            id = "chatStatistic" 
+            break
+        default:
+            console.log(`error：${monitorType} not exist`)
+            return
+    }
       this.$axios
         .get(`/monitor/${monitorType}`, {
           params: {
@@ -709,14 +888,23 @@ export default {
             if (undefined != charts) {
               charts.dispose();
             }
-            if (monitorType == "article") {
-              this.monitor.articleIncreaseNum = e.data.Data.articleIncreaseNum;
-              this.monitor.commentIncreaseNum = e.data.Data.commentIncreaseNum;
-              this.initArticle();
-            } else {
-              this.monitor.userIncreaseNum = e.data.Data.userIncreaseNum;
-              this.monitor.activeVisitorNum = e.data.Data.activeVisitorNum;
-              this.initActiveUser();
+            switch (monitorType) {
+                case "article":
+                    this.monitor.articleIncreaseNum = e.data.Data.articleIncreaseNum;
+                    this.monitor.commentIncreaseNum = e.data.Data.commentIncreaseNum;
+                    this.initArticle();
+                    break
+                case "user":
+                    this.monitor.userIncreaseNum = e.data.Data.userIncreaseNum;
+                    this.monitor.activeVisitorNum = e.data.Data.activeVisitorNum;
+                    console.log(e.data.Data)
+                    this.initActiveUser();
+                    break
+                case "chat":
+                    this.monitor.chatMaxOnlineNum = e.data.Data.chatMaxOnlineNum;
+                    this.monitor.chatMessageNum = e.data.Data.chatMessageNum;
+                    this.initChat();
+                    break
             }
           } else {
             this.$message.error("get monitor fail: " + e.data.message);
