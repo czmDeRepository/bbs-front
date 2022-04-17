@@ -24,7 +24,7 @@ export default{
         return fmt;
     },
     isBlank(str) {
-        if ( str == "" ) return true;
+        if ( str == undefined || str == "" ) return true;
         var regu = /^[\s]+$/;
         var re = new RegExp(regu);
         return re.test(str);
