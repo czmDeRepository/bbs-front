@@ -8,44 +8,44 @@
                 </el-col>
                 <el-col :span="5">
                     <el-form-item prop="title" >
-                        <el-input  v-model="artilceForm.title" placeholder="请输入论贴标题"></el-input>
+                        <el-input size="medium" v-model="artilceForm.title" placeholder="请输入论贴标题"></el-input>
                     </el-form-item>
                 </el-col>
                 <el-col :span="3">
                     <el-form-item prop="labelList">
-                        <el-select  style="margin-left:-80px;" v-model="artilceForm.labelList" :multiple="true" collapse-tags  placeholder="请选择标签" >
+                        <el-select size="medium" style="margin-left:-80px;" v-model="artilceForm.labelList" :multiple="true" collapse-tags  placeholder="请选择标签" >
                             <el-option v-for="item in labelList" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="2">
                     <el-form-item prop="categoryId">
-                        <el-select  style="margin-left:-80px;" v-model="artilceForm.categoryId" :clearable="true" placeholder="请选择分类">
+                        <el-select size="medium" style="margin-left:-80px;" v-model="artilceForm.categoryId" :clearable="true" placeholder="请选择分类">
                         <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="7" align="right">
-                    <el-button v-if="id == 0 || artilceForm.status == 1" type="success" @click="post('artilceForm', 2, '发布')">发布</el-button>
+                    <el-button size="medium" v-if="id == 0 || artilceForm.status == 1" type="success" @click="post('artilceForm', 2, '发布')">发布</el-button>
                     <el-popover v-if="artilceForm.id == 0"
                         placement="top-start"
                         width="200"
                         trigger="hover"
                         content="保存草稿可在个人中心查看。">
-                        <el-button slot="reference" type="warning" @click="post('artilceForm', 1, '保存')">保存</el-button>
+                        <el-button size="medium" slot="reference" type="warning" @click="post('artilceForm', 1, '保存')">保存</el-button>
                     </el-popover>
-                    <el-button style="margin-left: 0px;" v-else type="warning" @click="post('artilceForm', artilceForm.status, '修改')">修改</el-button>
+                    <el-button size="medium" style="margin-left: 0px;" v-else type="warning" @click="post('artilceForm', artilceForm.status, '修改')">修改</el-button>
                     <el-popconfirm v-if="id != 0"
                         title="确定返回？请确保已经保存保存编辑！！！"
                         @confirm="deleteArticle"
                         >
-                        <el-button slot="reference" type="danger" >删除</el-button>
+                        <el-button size="medium" slot="reference" type="danger" >删除</el-button>
                     </el-popconfirm>
                     <el-popconfirm
                         title="确定返回？请确保已经保存保存编辑！！！"
                         @confirm="back"
                         >
-                        <el-button slot="reference" type="info">返回</el-button>
+                        <el-button size="medium" slot="reference" type="info">返回</el-button>
                     </el-popconfirm>
                 </el-col>
                 </el-row>
