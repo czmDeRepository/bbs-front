@@ -3,6 +3,9 @@ import 'default-passive-events'
 import App from './App.vue'
 import axios from 'axios'
 import store from '@/services/store.js'
+import md5 from 'js-md5';
+Vue.prototype.$md5 = md5;
+
 // Element --start
 // 部分组件引用
 // import  { Button, Select,Table } from 'element-ui';

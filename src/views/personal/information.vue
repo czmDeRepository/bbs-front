@@ -283,36 +283,62 @@ export default {
         });
       },
       beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/png' || file.type === 'image/jpeg';
-        if (!isJPG) {
+        const isPngOrJpg = file.type === 'image/png' || file.type === 'image/jpeg';
+        if (!isPngOrJpg) {
             this.$message.error('上传头像图片只能是 jpg/png 格式!');
         }
         const isLt5M = file.size / 1024 / 1024 < 5;
         if (!isLt5M) {
           this.$message.error('上传头像图片大小不能超过 5MB!');
         }
-        return isJPG && isLt5M;
+        return isPngOrJpg && isLt5M;
       }, 
       uploadImages(file) {
-          if(store.getUserId() == null) {
+            if(store.getUserId() == null) {
             this.$message.error(`请先登陆！！！`)
             return
-          }
-          let param = new FormData();
-          param.append('image', file.file)
-          this.$axios.post('upload', param, {
-              headers: {
-                  'Content-Type': 'multipart/form-data',
-                  'token': store.getToken(),
-              }}).then((e)=> {
-                  if(e.data.success) {
-                      this.userForm.imageUrl = e.data.Data
-                      this.$refs.upload.clearFiles()
-                    //   this.imageUrl = this.$axios.defaults.baseURL+`${e.data.Data}`+'?time='+new Date()
-                      this.imageUrl = e.data.Data
-                      this.$message.success('头像上传成功')
-                  }
-          })
+            }
+            let that = this
+            let reader = new FileReader();
+            reader.readAsArrayBuffer(file.file);//发起异步请求
+            reader.onload = function(){
+                let ext = file.file.name.substr(file.file.name.indexOf("."), file.file.name.length);  
+                //读取完成后，数据保存在对象的result属性中
+                let fileName = that.$md5(new Uint8Array(this.result)) + ext
+                console.log(fileName)
+                that.$axios.options('upload', {
+                    params: {
+                        fileName: fileName
+                    },
+                    headers: {
+                        'token': store.getToken()
+                    }
+                }).then((e)=>{
+                    if(e.data.success) {
+                        that.userForm.imageUrl = e.data.Data
+                        that.$refs.upload.clearFiles()
+                        that.imageUrl = e.data.Data
+                        that.$message.success('头像上传成功')
+                        return
+                    }
+                    // 不存在，触发文件上传
+                    let param = new FormData();
+                    param.append('image', file.file)
+                    that.$axios.post('upload', param, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            'token': store.getToken(),
+                        }}).then((e)=> {
+                            if(e.data.success) {
+                                that.userForm.imageUrl = e.data.Data
+                                that.$refs.upload.clearFiles()
+                                //   that.imageUrl = that.$axios.defaults.baseURL+`${e.data.Data}`+'?time='+new Date()
+                                that.imageUrl = e.data.Data
+                                that.$message.success('头像上传成功')
+                            }
+                    })
+                })
+            }
       },
      //   修改邮箱密码
       emailPassword() {
