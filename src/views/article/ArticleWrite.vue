@@ -199,23 +199,13 @@ export default {
         },
         // 文章添加图片
         imgeAdd(pos, $file) {
-            let formdata = new FormData();
-            formdata.append('image', $file);
-
-            this.$axios.post('/upload',formdata,{
-                headers: {
-                    'token': store.getToken(),
-                    'Content-Type': 'multipart/form-data',          
-                    },
-            }).then((res) => {
-                
-                if(res.data.success) {
+            console.log($file)
+            tools.uploadImage(this, $file, (url) => {
+                if(url != undefined) {
                     //将返回的url替换到文本原位置
-                    this.$refs.md.$img2Url(pos, this.$axios.defaults.baseURL + res.data.Data);
-                } else {
-                    this.$message.error('图片上传失败！！！请稍后重试。。。')
+                    this.$refs.md.$img2Url(pos, this.$axios.defaults.baseURL + url);
+                    this.$message.success('图片上传成功')
                 }
-
             })
         },
         deleteArticle() {

@@ -123,5 +123,44 @@ export default{
             clearInterval(this.messageInterval)
             this.messageInterval = null
         }
-    }
+    },
+    uploadImage(vue, file, callback) {
+        if(store.getUserId() == null) {
+            vue.$message.error(`请先登陆！！！`)
+            return
+        }
+        let reader = new FileReader();
+        reader.readAsArrayBuffer(file);//发起异步请求
+        reader.onload = function(){
+            let ext = file.name.substr(file.name.indexOf("."), file.name.length);  
+            //读取完成后，数据保存在对象的result属性中
+            let fileName = vue.$md5(new Uint8Array(this.result)) + ext
+            vue.$axios.options('upload', {
+                params: {
+                    fileName: fileName
+                },
+                headers: {
+                    'token': store.getToken()
+                }
+            }).then((e)=>{
+                if(e.data.success) {
+                    return callback(e.data.Data)
+                }
+                // 不存在，触发文件上传
+                let param = new FormData();
+                param.append('image', file)
+                vue.$axios.post('upload', param, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'token': store.getToken(),
+                    }}).then((e)=> {
+                        if(e.data.success) {
+                            return callback(e.data.Data)
+                        } else {
+                            vue.$message.error(`图片上传失败:${e.data.message}, 请稍后重试。。。`)
+                        }
+                    })
+                })
+        }
+    },
 }

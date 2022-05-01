@@ -294,51 +294,13 @@ export default {
         return isPngOrJpg && isLt5M;
       }, 
       uploadImages(file) {
-            if(store.getUserId() == null) {
-            this.$message.error(`请先登陆！！！`)
-            return
-            }
-            let that = this
-            let reader = new FileReader();
-            reader.readAsArrayBuffer(file.file);//发起异步请求
-            reader.onload = function(){
-                let ext = file.file.name.substr(file.file.name.indexOf("."), file.file.name.length);  
-                //读取完成后，数据保存在对象的result属性中
-                let fileName = that.$md5(new Uint8Array(this.result)) + ext
-                console.log(fileName)
-                that.$axios.options('upload', {
-                    params: {
-                        fileName: fileName
-                    },
-                    headers: {
-                        'token': store.getToken()
-                    }
-                }).then((e)=>{
-                    if(e.data.success) {
-                        that.userForm.imageUrl = e.data.Data
-                        that.$refs.upload.clearFiles()
-                        that.imageUrl = e.data.Data
-                        that.$message.success('头像上传成功')
-                        return
-                    }
-                    // 不存在，触发文件上传
-                    let param = new FormData();
-                    param.append('image', file.file)
-                    that.$axios.post('upload', param, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                            'token': store.getToken(),
-                        }}).then((e)=> {
-                            if(e.data.success) {
-                                that.userForm.imageUrl = e.data.Data
-                                that.$refs.upload.clearFiles()
-                                //   that.imageUrl = that.$axios.defaults.baseURL+`${e.data.Data}`+'?time='+new Date()
-                                that.imageUrl = e.data.Data
-                                that.$message.success('头像上传成功')
-                            }
-                    })
-                })
-            }
+            tools.uploadImage(this, file.file, (url) => {
+                if(url != undefined) {
+                    this.userForm.imageUrl = url
+                    this.imageUrl = url + '?time='+new Date()
+                    this.$message.success('图片上传成功')
+                }
+            })
       },
      //   修改邮箱密码
       emailPassword() {
