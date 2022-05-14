@@ -159,12 +159,12 @@ export default {
                             if(e.data.success) {
                                 this.artilceForm.status = status
                                 if (status == 2) {
-                                    this.$alert('发布成功，点击确定查看已发布论贴', '', {
+                                    this.$alert('发布成功', '', {
                                         type: 'success',
                                         confirmButtonText: '确定',
                                         cancelButtonText: '取消',
                                         callback: action => {
-                                            this.$router.push(`/main/articleDetail/${e.data.Data.id}`)
+                                            this.$router.push('/main/index')
                                         }
                                     })
                                 } else if (status == 1) {

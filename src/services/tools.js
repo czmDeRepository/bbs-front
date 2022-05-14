@@ -115,7 +115,7 @@ export default{
         if(this.messageInterval == null) {
             console.log('开始拉取消息')
             pull()
-            this.messageInterval = setInterval(pull, 5 * 60 * 1000 + 3000) // 5.3分钟一次
+            this.messageInterval = setInterval(pull, 1 * 60 * 1000 + 3000) // 1.3分钟一次
         }
     },
     stopPullMessage() {
