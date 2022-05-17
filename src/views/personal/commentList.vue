@@ -208,6 +208,8 @@ export default {
                 if(e.data.success) {
                     this.$message.success('删除成功')
                     this.getComemnt()
+                } else {
+                    this.$message.error(e.data.message)
                 }
             })
         },

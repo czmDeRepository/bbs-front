@@ -813,6 +813,9 @@ export default {
 .cc {
   display: inline-block;
 }
+.cc-to {
+  vertical-align: top;
+}
 .cc-to a {
   text-decoration: none;
   color: #409eff;

@@ -269,8 +269,10 @@ export default {
         websocket.onClose = this.close
         // 获取分类
         this.$axios.get("/category",{
-            pageSize: -1,
-            pageNum: -1,
+            params: {
+                pageSize: -1,
+                pageNum: -1,
+            }
         }).then((e)=>{
             this.categoryList = this.categoryList.concat(e.data.Data.data)
         })

@@ -13,14 +13,14 @@
                 </el-col>
                 <el-col :span="3">
                     <el-form-item prop="labelList">
-                        <el-select size="medium" style="margin-left:-80px;" v-model="artilceForm.labelList" :multiple="true" collapse-tags  placeholder="请选择标签" >
+                        <el-select size="medium" style="margin-left:-80px;" v-model="artilceForm.labelList" :multiple="true" collapse-tags filterable placeholder="请选择标签" >
                             <el-option v-for="item in labelList" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col :span="2">
                     <el-form-item prop="categoryId">
-                        <el-select size="medium" style="margin-left:-80px;" v-model="artilceForm.categoryId" :clearable="true" placeholder="请选择分类">
+                        <el-select size="medium" style="margin-left:-80px;" v-model="artilceForm.categoryId" :clearable="true" filterable placeholder="请选择分类">
                         <el-option v-for="item in categoryList" :key="item.id" :label="item.name" :value="item.id"></el-option>
                         </el-select>
                     </el-form-item>
@@ -169,6 +169,7 @@ export default {
                                     })
                                 } else if (status == 1) {
                                     this.artilceForm.id = e.data.Data.id
+                                    this.id = e.data.Data.id
                                     this.$message.success('保存成功。')
                                 }
                             } else {
@@ -239,8 +240,10 @@ export default {
         })
         // 获取分类
         this.$axios.get("/category",{
-            pageSize: -1,
-            pageNum: -1,
+            params: {
+                pageSize: -1,
+                pageNum: -1,
+            }
         }).then((e)=>{
             this.categoryList = e.data.Data.data
         })

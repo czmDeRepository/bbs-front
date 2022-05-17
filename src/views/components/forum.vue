@@ -227,6 +227,7 @@ export default {
             } else {
                 this.params.isAsc = false
             }
+            this.params.pageNum = 1
             this.getArticle()
         },
         getArticle() {
@@ -326,8 +327,10 @@ export default {
         })
         // 获取分类
         this.$axios.get("/category",{
-            pageSize: -1,
-            pageNum: -1,
+            params: {
+                pageSize: -1,
+                pageNum: -1,
+            }
         }).then((e)=>{
             this.categoryList = e.data.Data.data
         })
