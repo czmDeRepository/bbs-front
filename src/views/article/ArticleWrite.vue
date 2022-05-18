@@ -8,7 +8,7 @@
                 </el-col>
                 <el-col :span="5">
                     <el-form-item prop="title" >
-                        <el-input size="medium" v-model="artilceForm.title" placeholder="请输入论贴标题"></el-input>
+                        <el-input size="medium" :maxlength="20" v-model="artilceForm.title" placeholder="请输入论贴标题"></el-input>
                     </el-form-item>
                 </el-col>
                 <el-col :span="3">
