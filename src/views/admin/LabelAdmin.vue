@@ -162,7 +162,7 @@ export default {
                         this.$message.success('创建成功')
                         this.dialogVisible = false
                     } else {
-                        this.$message.error(`修改失败：${res.data.message}`)
+                        this.$message.error(`创建失败：${res.data.message}`)
                     }
                     this.getLabel()
                 })
