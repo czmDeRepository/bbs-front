@@ -5,6 +5,7 @@
 [论坛前端](https://github.com/czmDeRepository/bbs-front)
 
 ## Project setup
+
 ```
 npm install
 ```
