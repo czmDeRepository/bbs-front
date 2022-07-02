@@ -133,7 +133,7 @@ export default {
   max-height: calc(100vh - 120px);
 }
 .el-calendar{
-    height: 100%;
+    height: calc(100vh - 120px);
 }
 .el-calendar-table thead th {
     padding: 6px 0;
